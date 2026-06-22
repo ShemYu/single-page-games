@@ -15,7 +15,7 @@
   &nbsp;|&nbsp;
   <a href="https://shemyu.github.io/single-page-games/games/mochi-sky/">Launch Mochi Sky</a>
   &nbsp;|&nbsp;
-  <a href="./games/mochi-sky/">Browse the Game Source</a>
+  <a href="https://github.com/ShemYu/single-page-games/tree/main/games/mochi-sky">Browse the Game Source</a>
 </p>
 
 ---
