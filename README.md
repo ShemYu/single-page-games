@@ -2,6 +2,13 @@
 
 一個用來收納可直接在瀏覽器執行的迷你遊戲 repo。
 
+## Live Site
+
+- 首頁 / 遊戲目錄：<https://shemyu.github.io/single-page-games/>
+- 麻糬星野：<https://shemyu.github.io/single-page-games/games/mochi-sky/>
+
+首頁是 repo 根目錄的 `index.html`，會列出目前收錄的遊戲入口。
+
 ## Games
 
 - **麻糬星野** — 像素風橫向卷軸 POC
