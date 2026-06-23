@@ -22,6 +22,7 @@ https://shemyu.github.io/single-page-games/games/mochi-sky/
 - keyboard controls
 - touch controls for mobile browsers
 - lightweight procedural audio
+- generated PNG player movement sheet, inhale animation sheet, enemy sheet, star sheet, backdrop, and terrain tiles
 
 ## Controls
 
@@ -36,4 +37,11 @@ https://shemyu.github.io/single-page-games/games/mochi-sky/
 
 ## POC notes
 
-This is intentionally compact and self-contained: one HTML file with embedded CSS, JavaScript, and canvas rendering. The goal is to validate feel and interaction before extracting assets or introducing a framework.
+This is intentionally compact: one HTML page with embedded CSS, JavaScript, canvas rendering, and a few local PNG textures. The goal is to validate feel and interaction before introducing a framework.
+
+The current POC keeps the single-page game structure, but uses a few generated local PNG assets from `assets/` for sharper textures. Regenerate them with:
+
+```bash
+python3 tools/generate_assets.py
+python3 tools/normalize_generated_art.py
+```

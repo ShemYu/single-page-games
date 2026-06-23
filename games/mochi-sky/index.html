@@ -441,6 +441,32 @@
       purple: '#7457a5'
     };
 
+    const pixelAssets = {
+      atlas: loadPixelImage('assets/mochi-sky-atlas.png'),
+      mochi: loadPixelImage('assets/mochi-sky-mochi-action-game-sheet.png'),
+      inhale: loadPixelImage('assets/mochi-sky-inhale-game-sheet.png'),
+      enemy: loadPixelImage('assets/mochi-sky-enemy-game-sheet.png'),
+      star: loadPixelImage('assets/mochi-sky-star-game-sheet.png'),
+      tiles: loadPixelImage('assets/mochi-sky-tiles.png'),
+      backdrop: loadPixelImage('assets/mochi-sky-backdrop.png')
+    };
+
+    const sprites = {
+      mochiIdle: [0, 0, 32, 32],
+      mochiWalkA: [32, 0, 32, 32],
+      mochiWalkB: [64, 0, 32, 32],
+      mochiWalkC: [96, 0, 32, 32],
+      mochiWalkD: [128, 0, 32, 32],
+      mochiJump: [160, 0, 32, 32],
+      mochiInhale: [192, 0, 48, 32],
+      enemy: [0, 36, 24, 24],
+      star: [32, 40, 16, 16],
+      heartFull: [52, 40, 16, 16],
+      heartEmpty: [72, 40, 16, 16],
+      projectile: [92, 40, 16, 16],
+      goal: [144, 36, 48, 64]
+    };
+
     const platforms = [
       { x: 0,    y: 180, w: 420, h: 40 },
       { x: 468,  y: 180, w: 380, h: 40 },
@@ -510,7 +536,8 @@
       ammo: 0,
       score: 0,
       checkpoint: 0,
-      anim: 0
+      anim: 0,
+      inhaleTick: 0
     };
 
     function resetLevel(full = true) {
@@ -735,6 +762,8 @@
       if (!jumpDown && player.vy < -2.05) player.vy += .24;
 
       player.inhale = inhale && player.ammo < 2;
+      if (player.inhale) player.inhaleTick++;
+      else player.inhaleTick = 0;
       if (shootPressed) shoot();
 
       player.vy = Math.min(player.vy + .255, 6.6);
@@ -983,7 +1012,54 @@
       drawOverlay();
     }
 
+    function loadPixelImage(src) {
+      const img = new Image();
+      img.decoding = 'async';
+      img.src = src;
+      return img;
+    }
+
+    function imageReady(img) {
+      return img?.complete && img.naturalWidth > 0;
+    }
+
+    function drawSprite(img, sprite, dx, dy, dw, dh, flip = false) {
+      const [sx, sy, sw, sh] = sprite;
+      ctx.save();
+      if (flip) {
+        ctx.translate(Math.round(dx + dw), Math.round(dy));
+        ctx.scale(-1, 1);
+        ctx.drawImage(img, sx, sy, sw, sh, 0, 0, Math.round(dw), Math.round(dh));
+      } else {
+        ctx.drawImage(img, sx, sy, sw, sh, Math.round(dx), Math.round(dy), Math.round(dw), Math.round(dh));
+      }
+      ctx.restore();
+    }
+
+    function drawTiledAsset(img, sx, sy, sw, sh, dx, dy, dw, dh) {
+      for (let y = 0; y < dh; y += sh) {
+        for (let x = 0; x < dw; x += sw) {
+          const tileW = Math.min(sw, dw - x);
+          const tileH = Math.min(sh, dh - y);
+          ctx.drawImage(img, sx, sy, tileW, tileH, Math.round(dx + x), Math.round(dy + y), tileW, tileH);
+        }
+      }
+    }
+
     function drawBackground() {
+      if (imageReady(pixelAssets.backdrop)) {
+        ctx.drawImage(pixelAssets.backdrop, 0, 0);
+        ctx.fillStyle = '#fff9cb';
+        for (let i = 0; i < 18; i++) {
+          const x = mod(i * 73 - cameraX * .08, W + 20) - 10;
+          const y = 15 + mod(i * 31, 74);
+          ctx.globalAlpha = ((i + Math.floor(gameTime * 2)) % 4 === 0) ? .95 : .55;
+          ctx.fillRect(Math.floor(x), y, 1 + (((i + Math.floor(gameTime * 2)) % 4 === 0) ? 1 : 0), 1);
+        }
+        ctx.globalAlpha = 1;
+        return;
+      }
+
       ctx.fillStyle = palette.sky;
       ctx.fillRect(0, 0, W, H);
       ctx.fillStyle = palette.sky2;
@@ -1051,6 +1127,13 @@
     function drawPlatforms() {
       for (const p of platforms) {
         if (p.x + p.w < cameraX - 20 || p.x > cameraX + W + 20) continue;
+        if (imageReady(pixelAssets.tiles)) {
+          drawTiledAsset(pixelAssets.tiles, 0, 10, 128, 54, p.x, p.y + 8, p.w, Math.max(0, p.h - 8));
+          drawTiledAsset(pixelAssets.tiles, 0, 0, 128, 10, p.x, p.y, p.w, Math.min(10, p.h));
+          ctx.fillStyle = '#fff9cf66';
+          ctx.fillRect(p.x, p.y, p.w, 1);
+          continue;
+        }
         ctx.fillStyle = palette.dirtDark;
         ctx.fillRect(p.x, p.y, p.w, p.h);
         ctx.fillStyle = palette.dirt;
@@ -1099,6 +1182,15 @@
       for (const s of stars) {
         if (!s.alive || s.x < cameraX - 10 || s.x > cameraX + W + 10) continue;
         const bob = Math.round(Math.sin(gameTime * 3 + s.phase) * 2);
+        if (imageReady(pixelAssets.star)) {
+          const frame = Math.floor(gameTime * 8 + s.phase) % 8;
+          drawSprite(pixelAssets.star, [frame * 32, 0, 32, 32], s.x - 9, s.y + bob - 9, 18, 18);
+          continue;
+        }
+        if (imageReady(pixelAssets.atlas)) {
+          drawSprite(pixelAssets.atlas, sprites.star, s.x - 8, s.y + bob - 8, 16, 16);
+          continue;
+        }
         drawPixelStar(Math.round(s.x), Math.round(s.y + bob), palette.yellow, 1);
       }
     }
@@ -1106,6 +1198,15 @@
     function drawGoal() {
       const x = 2624;
       const y = 128;
+      if (imageReady(pixelAssets.atlas)) {
+        const pulse = Math.floor(gameTime * 5) % 4;
+        ctx.globalAlpha = .28;
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(x + 2 - pulse, y - 6 - pulse, 44 + pulse * 2, 66 + pulse * 2);
+        ctx.globalAlpha = 1;
+        drawSprite(pixelAssets.atlas, sprites.goal, x - 8, y - 10, 48, 64);
+        return;
+      }
       const pulse = Math.floor(gameTime * 5) % 4;
       ctx.fillStyle = '#ffffffaa';
       ctx.fillRect(x + 4 - pulse, y + 4 - pulse, 24 + pulse * 2, 45 + pulse * 2);
@@ -1126,6 +1227,19 @@
         const bob = Math.round(Math.sin(e.wobble) * 1);
         const x = Math.round(e.x);
         const y = Math.round(e.y + bob);
+        if (imageReady(pixelAssets.enemy)) {
+          const dx = (player.x + player.w / 2) - (e.x + e.w / 2);
+          const dy = (player.y + player.h / 2) - (e.y + e.h / 2);
+          const inFront = Math.sign(-dx || player.dir) === player.dir;
+          const pulled = player.inhale && inFront && Math.abs(dx) < 100 && Math.abs(dy) < 42;
+          const frame = pulled ? 5 : Math.floor(e.wobble * 2.2) % 5;
+          drawSprite(pixelAssets.enemy, [frame * 48, 0, 48, 48], x - 8, y - 14, 32, 32, e.vx < 0);
+          continue;
+        }
+        if (imageReady(pixelAssets.atlas)) {
+          drawSprite(pixelAssets.atlas, sprites.enemy, x - 4, y - 5, 24, 24, e.vx < 0);
+          continue;
+        }
         ctx.fillStyle = '#c7f6e6';
         ctx.fillRect(x + 3, y + 2, 10, 2);
         ctx.fillRect(x + 1, y + 4, 14, 8);
@@ -1142,6 +1256,19 @@
 
     function drawProjectiles() {
       for (const p of projectiles) {
+        if (imageReady(pixelAssets.star)) {
+          const frame = 5 + Math.floor(p.spin * 2) % 3;
+          drawSprite(pixelAssets.star, [frame * 32, 0, 32, 32], p.x - 13, p.y - 8, 26, 16, p.vx < 0);
+          ctx.fillStyle = '#fff9d0';
+          ctx.fillRect(Math.round(p.x - Math.sign(p.vx) * 10), Math.round(p.y), 5, 1);
+          continue;
+        }
+        if (imageReady(pixelAssets.atlas)) {
+          drawSprite(pixelAssets.atlas, sprites.projectile, p.x - 8, p.y - 8, 16, 16);
+          ctx.fillStyle = '#fff9d0';
+          ctx.fillRect(Math.round(p.x - Math.sign(p.vx) * 8), Math.round(p.y), 4, 1);
+          continue;
+        }
         drawPixelStar(Math.round(p.x), Math.round(p.y), palette.yellow, 1);
         ctx.fillStyle = '#fff9d0';
         ctx.fillRect(Math.round(p.x - Math.sign(p.vx) * 7), Math.round(p.y), 3, 1);
@@ -1163,6 +1290,41 @@
       const y = Math.round(player.y);
       const walking = player.onGround && Math.abs(player.vx) > .18;
       const bob = walking ? Math.floor(player.anim) % 2 : 0;
+
+      if (player.inhale && imageReady(pixelAssets.inhale)) {
+        const inhaleFrame = player.inhaleTick < 28
+          ? Math.min(7, Math.floor(player.inhaleTick / 4))
+          : 5 + Math.floor(player.inhaleTick / 4) % 3;
+        const flip = player.dir < 0;
+        const dx = flip ? x - 33 : x - 15;
+        drawSprite(pixelAssets.inhale, [inhaleFrame * 96, 0, 96, 64], dx, y - 7 + bob, 48, 32, flip);
+        return;
+      }
+
+      if (imageReady(pixelAssets.mochi)) {
+        const frame = !player.onGround
+          ? (player.vy < 0 ? 6 : 7)
+          : walking
+            ? 2 + (Math.floor(player.anim) % 4)
+            : Math.floor(gameTime * 3) % 2;
+        drawSprite(pixelAssets.mochi, [frame * 64, 0, 64, 64], x - 18, y - 12 + bob, 36, 36, player.dir < 0);
+        return;
+      }
+
+      if (imageReady(pixelAssets.atlas)) {
+        const walkFrames = [sprites.mochiWalkA, sprites.mochiWalkB, sprites.mochiWalkC, sprites.mochiWalkD];
+        const frame = player.inhale
+          ? sprites.mochiInhale
+          : !player.onGround
+            ? sprites.mochiJump
+            : walking
+                ? walkFrames[Math.floor(player.anim) % walkFrames.length]
+                : sprites.mochiIdle;
+        const dw = player.inhale ? 48 : 32;
+        const dx = player.inhale && player.dir < 0 ? x - 32 : x - 16;
+        drawSprite(pixelAssets.atlas, frame, dx, y - 7 + bob, dw, 32, player.dir < 0);
+        return;
+      }
 
       ctx.save();
       ctx.translate(x, y + bob);
@@ -1295,6 +1457,11 @@
     }
 
     function drawHeart(x, y, color) {
+      if (imageReady(pixelAssets.atlas)) {
+        const sprite = color === palette.red ? sprites.heartFull : sprites.heartEmpty;
+        drawSprite(pixelAssets.atlas, sprite, x - 8, y - 8, 16, 16);
+        return;
+      }
       ctx.fillStyle = color;
       ctx.fillRect(x - 5, y - 4, 4, 4);
       ctx.fillRect(x + 1, y - 4, 4, 4);
