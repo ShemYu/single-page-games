@@ -1,0 +1,271 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="600" viewBox="0 0 1600 600" role="img" aria-labelledby="title desc">
+  <title id="title">Tiny Arcade — open-source single-page games</title>
+  <desc id="desc">A neon pixel-art banner showing a community-built browser game hub, with multiple contributors connecting code, art, audio, and playtesting into a shared arcade.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#060A21"/>
+      <stop offset="0.5" stop-color="#111640"/>
+      <stop offset="1" stop-color="#241047"/>
+    </linearGradient>
+    <radialGradient id="glowRight" cx="75%" cy="48%" r="55%">
+      <stop offset="0" stop-color="#3EE7FF" stop-opacity="0.22"/>
+      <stop offset="0.45" stop-color="#7C5CFF" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#0A0D2A" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="titleGradient" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#6EFAFF"/>
+      <stop offset="0.58" stop-color="#4EC8FF"/>
+      <stop offset="1" stop-color="#B59BFF"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1B245C"/>
+      <stop offset="1" stop-color="#0E143B"/>
+    </linearGradient>
+    <linearGradient id="cardOne" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#72E5FF"/>
+      <stop offset="0.62" stop-color="#5B9BE8"/>
+      <stop offset="0.63" stop-color="#5EDB8B"/>
+      <stop offset="1" stop-color="#23915C"/>
+    </linearGradient>
+    <linearGradient id="cardTwo" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#231B63"/>
+      <stop offset="1" stop-color="#51277F"/>
+    </linearGradient>
+    <linearGradient id="cardThree" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#07112F"/>
+      <stop offset="1" stop-color="#17145B"/>
+    </linearGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" fill="none" stroke="#7890FF" stroke-opacity="0.08" stroke-width="1"/>
+    </pattern>
+    <filter id="softGlow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="12"/>
+    </filter>
+    <filter id="textGlow" x="-30%" y="-50%" width="160%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="smallGlow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1600" height="600" fill="url(#bg)"/>
+  <rect width="1600" height="600" fill="url(#glowRight)"/>
+  <rect width="1600" height="600" fill="url(#grid)"/>
+
+  <!-- ambient pixels -->
+  <g shape-rendering="crispEdges" opacity="0.75">
+    <rect x="48" y="32" width="3" height="3" fill="#FFFFFF"/>
+    <rect x="183" y="62" width="5" height="5" fill="#69F5FF"/>
+    <rect x="352" y="38" width="3" height="3" fill="#A993FF"/>
+    <rect x="493" y="104" width="4" height="4" fill="#69F5FF"/>
+    <rect x="632" y="49" width="3" height="3" fill="#FFFFFF"/>
+    <rect x="742" y="89" width="5" height="5" fill="#7B86FF"/>
+    <rect x="817" y="33" width="3" height="3" fill="#69F5FF"/>
+    <rect x="1516" y="56" width="4" height="4" fill="#69F5FF"/>
+    <rect x="1550" y="182" width="3" height="3" fill="#FFFFFF"/>
+    <rect x="1490" y="528" width="5" height="5" fill="#A993FF"/>
+    <rect x="138" y="537" width="4" height="4" fill="#69F5FF"/>
+    <rect x="586" y="552" width="3" height="3" fill="#FFFFFF"/>
+    <rect x="763" y="508" width="5" height="5" fill="#A993FF"/>
+    <path d="M285 105h18M294 96v18" stroke="#A993FF" stroke-width="2" opacity="0.65"/>
+    <path d="M724 402h22M735 391v22" stroke="#5FF5FF" stroke-width="3" opacity="0.55"/>
+    <path d="M1532 323h22M1543 312v22" stroke="#A993FF" stroke-width="3" opacity="0.6"/>
+  </g>
+
+  <!-- left copy -->
+  <g>
+    <rect x="72" y="70" width="370" height="38" rx="19" fill="#111B4D" stroke="#58ECFF" stroke-width="2"/>
+    <circle cx="94" cy="89" r="5" fill="#77F7FF" filter="url(#smallGlow)"/>
+    <text x="111" y="96" fill="#A7FAFF" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15" font-weight="800" letter-spacing="1.8">OPEN SOURCE · COMMUNITY BUILT</text>
+
+    <text x="70" y="232" fill="#F7F9FF" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="96" font-weight="850" letter-spacing="-5">Tiny</text>
+    <text x="68" y="334" fill="url(#titleGradient)" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="106" font-weight="900" letter-spacing="-6" filter="url(#textGlow)">Arcade</text>
+
+    <text x="77" y="389" fill="#D1D8FF" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="25" font-weight="800" letter-spacing="2.2">SINGLE-PAGE GAMES, BUILT TOGETHER.</text>
+    <text x="78" y="430" fill="#9EABD9" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="520">Fork an idea. Ship a tiny world. Help the shelf grow.</text>
+
+    <!-- contribution pipeline -->
+    <g transform="translate(78 470)" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15" font-weight="800" letter-spacing="1.2">
+      <rect x="0" y="0" width="94" height="36" rx="8" fill="#172050" stroke="#5DEEFF" stroke-width="2"/>
+      <text x="25" y="23" fill="#BFFBFF">FORK</text>
+      <path d="M103 18h28" stroke="#5DEEFF" stroke-width="2"/>
+      <path d="M126 13l7 5-7 5" fill="none" stroke="#5DEEFF" stroke-width="2"/>
+
+      <rect x="142" y="0" width="102" height="36" rx="8" fill="#221D59" stroke="#9B86FF" stroke-width="2"/>
+      <text x="166" y="23" fill="#D8CEFF">BUILD</text>
+      <path d="M255 18h28" stroke="#9B86FF" stroke-width="2"/>
+      <path d="M278 13l7 5-7 5" fill="none" stroke="#9B86FF" stroke-width="2"/>
+
+      <rect x="294" y="0" width="94" height="36" rx="8" fill="#172050" stroke="#5DEEFF" stroke-width="2"/>
+      <text x="319" y="23" fill="#BFFBFF">PLAY</text>
+      <path d="M399 18h28" stroke="#5DEEFF" stroke-width="2"/>
+      <path d="M422 13l7 5-7 5" fill="none" stroke="#5DEEFF" stroke-width="2"/>
+
+      <rect x="438" y="0" width="153" height="36" rx="8" fill="#2A1D5B" stroke="#C08CFF" stroke-width="2"/>
+      <text x="456" y="23" fill="#E9D8FF">CONTRIBUTE</text>
+    </g>
+
+    <g transform="translate(78 526)">
+      <rect x="0" y="0" width="282" height="36" rx="18" fill="#10264A" stroke="#64F4D0" stroke-width="2"/>
+      <path d="M19 18h12M25 12v12" stroke="#7DFFD9" stroke-width="3"/>
+      <text x="43" y="24" fill="#AAFFE8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15" font-weight="850" letter-spacing="1.5">PULL REQUESTS WELCOME</text>
+    </g>
+  </g>
+
+  <!-- community connector glow -->
+  <ellipse cx="1190" cy="330" rx="355" ry="235" fill="#4C50D8" opacity="0.12" filter="url(#softGlow)"/>
+  <ellipse cx="1190" cy="330" rx="255" ry="155" fill="#46E8FF" opacity="0.08" filter="url(#softGlow)"/>
+
+  <!-- connections behind hub -->
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M890 101 C935 101 938 151 976 170" stroke="#5DEEFF" stroke-width="3" opacity="0.6"/>
+    <path d="M1446 105 C1396 108 1401 153 1360 172" stroke="#B392FF" stroke-width="3" opacity="0.65"/>
+    <path d="M871 515 C928 512 930 468 980 452" stroke="#F1A3FF" stroke-width="3" opacity="0.6"/>
+    <path d="M1460 513 C1405 512 1402 468 1352 452" stroke="#7DFFD9" stroke-width="3" opacity="0.6"/>
+    <path d="M976 170 C1025 203 1040 414 1138 453" stroke="#5DEEFF" stroke-width="2" opacity="0.35"/>
+    <path d="M1360 172 C1315 208 1300 414 1229 453" stroke="#B392FF" stroke-width="2" opacity="0.35"/>
+    <path d="M980 452 C1042 456 1063 460 1138 463" stroke="#F1A3FF" stroke-width="2" opacity="0.35"/>
+    <path d="M1352 452 C1305 456 1272 460 1229 463" stroke="#7DFFD9" stroke-width="2" opacity="0.35"/>
+  </g>
+  <g shape-rendering="crispEdges">
+    <rect x="928" y="130" width="9" height="9" fill="#5DEEFF"/>
+    <rect x="1398" y="132" width="9" height="9" fill="#B392FF"/>
+    <rect x="925" y="477" width="9" height="9" fill="#F1A3FF"/>
+    <rect x="1392" y="478" width="9" height="9" fill="#7DFFD9"/>
+  </g>
+
+  <!-- role nodes -->
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="13" font-weight="850" letter-spacing="1.3">
+    <g transform="translate(803 67)">
+      <rect width="126" height="68" rx="15" fill="#101944" stroke="#5DEEFF" stroke-width="2"/>
+      <rect x="14" y="15" width="38" height="38" rx="11" fill="#163061" stroke="#5DEEFF"/>
+      <path d="M35 25l-8 9 8 9M40 25l8 9-8 9" fill="none" stroke="#9BFBFF" stroke-width="3"/>
+      <text x="65" y="32" fill="#D8FCFF">CODE</text>
+      <text x="65" y="49" fill="#6F86BC" font-size="10">commit</text>
+    </g>
+    <g transform="translate(1411 70)">
+      <rect width="120" height="68" rx="15" fill="#171442" stroke="#B392FF" stroke-width="2"/>
+      <rect x="14" y="15" width="38" height="38" rx="11" fill="#2E1B61" stroke="#B392FF"/>
+      <rect x="24" y="25" width="11" height="11" fill="#F4A5FF"/>
+      <rect x="35" y="36" width="10" height="10" fill="#72EFFF"/>
+      <rect x="35" y="25" width="10" height="10" fill="#B392FF"/>
+      <text x="64" y="32" fill="#E9DEFF">ART</text>
+      <text x="64" y="49" fill="#8073B4" font-size="10">sprites</text>
+    </g>
+    <g transform="translate(792 483)">
+      <rect width="137" height="68" rx="15" fill="#1C143D" stroke="#F1A3FF" stroke-width="2"/>
+      <rect x="14" y="15" width="38" height="38" rx="11" fill="#3C1B58" stroke="#F1A3FF"/>
+      <path d="M27 39v-16l13-3v15" fill="none" stroke="#FFC6FF" stroke-width="3"/>
+      <circle cx="25" cy="42" r="5" fill="#FFC6FF"/>
+      <circle cx="38" cy="38" r="5" fill="#FFC6FF"/>
+      <text x="65" y="32" fill="#FFE2FF">AUDIO</text>
+      <text x="65" y="49" fill="#9872AA" font-size="10">sounds</text>
+    </g>
+    <g transform="translate(1396 482)">
+      <rect width="145" height="68" rx="15" fill="#10253E" stroke="#7DFFD9" stroke-width="2"/>
+      <rect x="14" y="15" width="38" height="38" rx="11" fill="#123D48" stroke="#7DFFD9"/>
+      <path d="M23 35l7 7 14-17" fill="none" stroke="#B3FFE8" stroke-width="4" stroke-linecap="square"/>
+      <text x="64" y="32" fill="#D7FFF2">PLAYTEST</text>
+      <text x="64" y="49" fill="#679A91" font-size="10">feedback</text>
+    </g>
+  </g>
+
+  <!-- central browser game hub -->
+  <g>
+    <rect x="874" y="143" width="592" height="346" rx="24" fill="#080D2C" stroke="#5CEEFF" stroke-width="4"/>
+    <rect x="887" y="156" width="566" height="320" rx="15" fill="url(#panel)" stroke="#6C79E5" stroke-width="2"/>
+    <rect x="887" y="156" width="566" height="48" rx="15" fill="#141A4C"/>
+    <path d="M887 190H1453" stroke="#4657AF" stroke-width="2"/>
+    <circle cx="913" cy="179" r="6" fill="#FF78B7"/>
+    <circle cx="934" cy="179" r="6" fill="#FFD66E"/>
+    <circle cx="955" cy="179" r="6" fill="#72F0D2"/>
+    <text x="988" y="185" fill="#B9C5F8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="700">tiny-arcade / community</text>
+    <rect x="1369" y="168" width="63" height="22" rx="11" fill="#172B45" stroke="#7DFFD9"/>
+    <circle cx="1384" cy="179" r="4" fill="#7DFFD9"/>
+    <text x="1395" y="184" fill="#B9FFEA" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" font-weight="800">main</text>
+
+    <!-- game card one -->
+    <g transform="translate(909 222)">
+      <rect width="160" height="151" rx="13" fill="#0B1033" stroke="#4157B4" stroke-width="2"/>
+      <rect x="9" y="9" width="142" height="90" rx="8" fill="url(#cardOne)"/>
+      <circle cx="120" cy="29" r="11" fill="#FFF5A6"/>
+      <path d="M9 71l28-24 22 19 23-31 38 36z" fill="#4769B7" opacity="0.75"/>
+      <rect x="9" y="73" width="142" height="26" fill="#48BE79"/>
+      <rect x="30" y="66" width="24" height="24" rx="9" fill="#FF8BBC" stroke="#FFF0F8" stroke-width="2"/>
+      <rect x="35" y="73" width="4" height="6" fill="#2D244B"/>
+      <rect x="45" y="73" width="4" height="6" fill="#2D244B"/>
+      <rect x="91" y="59" width="13" height="14" fill="#F9E16D"/>
+      <rect x="96" y="54" width="4" height="24" fill="#F9E16D"/>
+      <text x="12" y="121" fill="#F2F5FF" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">Platformer</text>
+      <rect x="12" y="132" width="94" height="6" rx="3" fill="#40518F"/>
+    </g>
+
+    <!-- game card two -->
+    <g transform="translate(1089 222)">
+      <rect width="160" height="151" rx="13" fill="#0B1033" stroke="#6550B8" stroke-width="2"/>
+      <rect x="9" y="9" width="142" height="90" rx="8" fill="url(#cardTwo)"/>
+      <g shape-rendering="crispEdges">
+        <rect x="31" y="28" width="24" height="24" fill="#64ECFF"/>
+        <rect x="58" y="28" width="24" height="24" fill="#B28DFF"/>
+        <rect x="85" y="28" width="24" height="24" fill="#FF82C7"/>
+        <rect x="58" y="55" width="24" height="24" fill="#FFE27D"/>
+        <rect x="85" y="55" width="24" height="24" fill="#64ECFF"/>
+        <rect x="112" y="55" width="24" height="24" fill="#7DFFD9"/>
+      </g>
+      <path d="M22 88h117" stroke="#C9B9FF" stroke-width="2" opacity="0.55"/>
+      <text x="12" y="121" fill="#F2F5FF" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">Puzzle</text>
+      <rect x="12" y="132" width="76" height="6" rx="3" fill="#51418B"/>
+    </g>
+
+    <!-- game card three -->
+    <g transform="translate(1269 222)">
+      <rect width="160" height="151" rx="13" fill="#0B1033" stroke="#4157B4" stroke-width="2"/>
+      <rect x="9" y="9" width="142" height="90" rx="8" fill="url(#cardThree)"/>
+      <g shape-rendering="crispEdges">
+        <rect x="26" y="27" width="3" height="3" fill="#FFFFFF"/>
+        <rect x="123" y="22" width="4" height="4" fill="#73EFFF"/>
+        <rect x="101" y="44" width="3" height="3" fill="#B89AFF"/>
+        <rect x="40" y="64" width="4" height="4" fill="#73EFFF"/>
+        <rect x="127" y="74" width="3" height="3" fill="#FFFFFF"/>
+        <path d="M80 33l18 38-18-8-18 8z" fill="#77F5FF"/>
+        <rect x="77" y="64" width="6" height="19" fill="#FF9AD6"/>
+        <rect x="55" y="48" width="11" height="11" fill="#B89AFF"/>
+      </g>
+      <text x="12" y="121" fill="#F2F5FF" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">Arcade</text>
+      <rect x="12" y="132" width="86" height="6" rx="3" fill="#40518F"/>
+    </g>
+
+    <!-- contribution rail -->
+    <rect x="909" y="395" width="520" height="58" rx="12" fill="#0B1236" stroke="#34458F" stroke-width="2"/>
+    <text x="930" y="417" fill="#7184C8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" font-weight="700" letter-spacing="1.2">COMMUNITY CONTRIBUTION STREAM</text>
+    <path d="M942 435H1060C1087 435 1087 447 1115 447H1161" fill="none" stroke="#5DEEFF" stroke-width="3"/>
+    <path d="M1000 425V435" stroke="#F1A3FF" stroke-width="3"/>
+    <path d="M1043 447V435" stroke="#B392FF" stroke-width="3"/>
+    <path d="M1222 447H1264C1290 447 1290 435 1318 435H1397" fill="none" stroke="#7DFFD9" stroke-width="3"/>
+    <rect x="936" y="430" width="10" height="10" fill="#5DEEFF"/>
+    <rect x="995" y="420" width="10" height="10" fill="#F1A3FF"/>
+    <rect x="1038" y="442" width="10" height="10" fill="#B392FF"/>
+    <rect x="1392" y="430" width="10" height="10" fill="#7DFFD9"/>
+
+    <g transform="translate(1125 420)">
+      <rect width="98" height="46" rx="12" fill="#163A43" stroke="#7DFFD9" stroke-width="2" filter="url(#smallGlow)"/>
+      <path d="M16 23l8 8 15-18" fill="none" stroke="#9DFFE4" stroke-width="4"/>
+      <text x="48" y="20" text-anchor="middle" fill="#D8FFF2" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10" font-weight="800">PR #42</text>
+      <text x="63" y="35" text-anchor="middle" fill="#89F6D6" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="900">MERGED</text>
+    </g>
+  </g>
+
+  <!-- open source glyph near hub -->
+  <g transform="translate(1488 238)" opacity="0.7" filter="url(#smallGlow)">
+    <circle cx="0" cy="0" r="17" fill="#18204C" stroke="#6DEEFF" stroke-width="2"/>
+    <circle cx="0" cy="-3" r="5" fill="none" stroke="#A9FBFF" stroke-width="3"/>
+    <path d="M-5 2l-5 12h20L5 2" fill="none" stroke="#A9FBFF" stroke-width="3"/>
+  </g>
+
+  <!-- border -->
+  <rect x="4" y="4" width="1592" height="592" rx="24" fill="none" stroke="#586AD5" stroke-width="3" opacity="0.48"/>
+  <rect x="15" y="15" width="1570" height="570" rx="18" fill="none" stroke="#49EFFF" stroke-width="1" opacity="0.20"/>
+</svg>

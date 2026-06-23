@@ -1,7 +1,7 @@
 # Tiny Arcade
 
 <p align="center">
-  <img src="./assets/shem-tiny-arcade-banner.svg" alt="Tiny Arcade — AI, games, and playable experiments" width="100%">
+  <img src="./assets/tiny-arcade-open-source-banner.svg" alt="Tiny Arcade — open-source single-page games" width="100%">
 </p>
 
 > An instant-play browser game hub, created and curated by Shem.
@@ -47,6 +47,7 @@ single-page-games/
 │   ├── previews/
 │   │   ├── crystal-vanguard.png
 │   │   └── mochi-sky.png
+│   ├── tiny-arcade-open-source-banner.svg
 │   ├── shem-tiny-arcade-banner.svg
 │   └── shem-tiny-arcade-banner.png
 ├── games/
