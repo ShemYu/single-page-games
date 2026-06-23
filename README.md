@@ -30,6 +30,7 @@ The homepage is organized as a game hub rather than a personal landing page:
 | Game | Status | Genre | Controls | Path |
 | --- | --- | --- | --- | --- |
 | **Mochi Sky / 麻糬星野** | POC | Platformer, Action | Keyboard, Touch | `games/mochi-sky/` |
+| **Crystal Vanguard / 琉璃城：八方守晶** | POC | Strategy, Arcade | Keyboard, Mouse, Touch | `games/crystal-vanguard/` |
 
 ## Repository structure
 
@@ -44,10 +45,14 @@ single-page-games/
 │   │   ├── catalog.js                 # Game metadata source of truth
 │   │   └── hub.js                     # Search, filters, sorting, i18n
 │   ├── previews/
+│   │   ├── crystal-vanguard.png
 │   │   └── mochi-sky.png
 │   ├── shem-tiny-arcade-banner.svg
 │   └── shem-tiny-arcade-banner.png
 ├── games/
+│   ├── crystal-vanguard/
+│   │   ├── index.html                 # Playable game
+│   │   └── README.md
 │   └── mochi-sky/
 │       ├── index.html                 # Playable game
 │       └── README.md

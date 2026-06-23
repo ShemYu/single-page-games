@@ -30,5 +30,31 @@ window.TINY_ARCADE_GAMES = [
     playTime: "5–10 min",
     added: "2026-06-22",
     updated: "2026-06-22"
+  },
+  {
+    id: "crystal-vanguard",
+    title: {
+      en: "Crystal Vanguard",
+      zh: "琉璃城：八方守晶"
+    },
+    description: {
+      en: "A pixel tactics tower-defense game. Recruit, merge, deploy, and guard the crystal from enemies arriving from eight directions.",
+      zh: "像素戰棋守塔遊戲。招募、合成、部署戰棋，抵禦八方來襲的敵軍並守住華麗水晶。"
+    },
+    path: "./games/crystal-vanguard/",
+    source: "https://github.com/ShemYu/single-page-games/tree/main/games/crystal-vanguard",
+    preview: "./assets/previews/crystal-vanguard.png",
+    previewAlt: {
+      en: "Crystal Vanguard gameplay showing a pixel battlefield with crystal defense UI",
+      zh: "琉璃城：八方守晶遊戲畫面，顯示像素戰場與水晶防衛介面"
+    },
+    genres: ["strategy", "arcade"],
+    tags: ["pixel-art", "tower-defense", "auto-battler", "single-player"],
+    controls: ["keyboard", "mouse", "touch"],
+    status: "poc",
+    featured: false,
+    playTime: "10–20 min",
+    added: "2026-06-23",
+    updated: "2026-06-23"
   }
 ];

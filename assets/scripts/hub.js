@@ -69,7 +69,9 @@
         cute: "Cute",
         "single-player": "Single player",
         procedural: "Procedural",
-        relaxing: "Relaxing"
+        relaxing: "Relaxing",
+        "tower-defense": "Tower defense",
+        "auto-battler": "Auto battler"
       },
       controlNames: {
         keyboard: "Keyboard",
@@ -141,7 +143,9 @@
         cute: "可愛",
         "single-player": "單人",
         procedural: "程序生成",
-        relaxing: "療癒"
+        relaxing: "療癒",
+        "tower-defense": "守塔",
+        "auto-battler": "自動戰棋"
       },
       controlNames: {
         keyboard: "鍵盤",
