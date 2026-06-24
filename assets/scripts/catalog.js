@@ -56,5 +56,31 @@ window.TINY_ARCADE_GAMES = [
     playTime: "10–20 min",
     added: "2026-06-23",
     updated: "2026-06-23"
-  }
+  },
+  {
+  id: "wink-pop-seoul",
+  title: {
+    en: "K-Idol Eye Runway",
+    zh: "韓系偶像電眼伸展台"
+  },
+  description: {
+    en: "A side-scrolling idol charm game. Aim your gaze, compete with rivals, and win fans before time runs out.",
+    zh: "橫向捲軸偶像放電小遊戲。瞄準男粉絲、和競爭對手搶人氣，在時間結束前收服粉絲。"
+  },
+  path: "./games/wink-pop-seoul/",
+  source: "https://github.com/ShemYu/single-page-games/tree/main/games/wink-pop-seoul",
+  preview: "./assets/previews/wink-pop-seoul.png",
+  previewAlt: {
+    en: "K-Idol Eye Runway gameplay with an idol charming fans in a festival street",
+    zh: "韓系偶像電眼伸展台遊戲畫面，偶像在祭典街道上對粉絲放電"
+  },
+  genres: ["arcade", "action"],
+  tags: ["cute", "single-player"],
+  controls: ["mouse", "touch"],
+  status: "poc",
+  featured: false,
+  playTime: "3–5 min",
+  added: "2026-06-24",
+  updated: "2026-06-24"
+}
 ];

@@ -1,0 +1,1789 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Wink Pop Seoul</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f8fbff;
+      --muted: #a9b2bd;
+      --panel: rgba(9, 12, 18, 0.78);
+      --line: rgba(255, 255, 255, 0.16);
+      --hot: #ff4d8d;
+      --mint: #33e4ca;
+      --lime: #c7ff4f;
+      --amber: #ffbf3d;
+      --danger: #ff5050;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 14% 8%, rgba(255, 77, 141, 0.18), transparent 28%),
+        radial-gradient(circle at 86% 2%, rgba(51, 228, 202, 0.18), transparent 26%),
+        linear-gradient(180deg, #090b10 0%, #10131a 48%, #06080c 100%);
+      color: var(--ink);
+    }
+
+    button {
+      font: inherit;
+      color: inherit;
+    }
+
+    .shell {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      min-height: 100svh;
+    }
+
+    .hud {
+      z-index: 4;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr 0.9fr 1.1fr;
+      gap: 8px;
+      padding: max(12px, env(safe-area-inset-top)) 12px 8px;
+      pointer-events: none;
+    }
+
+    .tile {
+      min-width: 0;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+      backdrop-filter: blur(12px);
+    }
+
+    .tile-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      color: var(--muted);
+      font-size: clamp(0.62rem, 1.8vw, 0.78rem);
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .tile strong {
+      display: block;
+      margin-top: 5px;
+      color: var(--ink);
+      font-size: clamp(1rem, 3vw, 1.45rem);
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .bar {
+      position: relative;
+      height: 7px;
+      margin-top: 7px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .bar span {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 50%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--mint), var(--lime));
+      box-shadow: 0 0 18px rgba(51, 228, 202, 0.65);
+    }
+
+    .bar.danger span {
+      background: linear-gradient(90deg, var(--amber), var(--danger));
+      box-shadow: 0 0 18px rgba(255, 80, 80, 0.55);
+    }
+
+    .game-wrap {
+      position: relative;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: crosshair;
+      touch-action: none;
+      user-select: none;
+    }
+
+    .controls {
+      z-index: 4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 8px 12px max(12px, env(safe-area-inset-bottom));
+      pointer-events: none;
+    }
+
+    .icon-button,
+    .primary-button {
+      display: inline-grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(8, 11, 16, 0.82);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(12px);
+      pointer-events: auto;
+      cursor: pointer;
+    }
+
+    .icon-button {
+      width: 46px;
+      height: 46px;
+      padding: 0;
+    }
+
+    .icon-button svg {
+      width: 21px;
+      height: 21px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .primary-button {
+      min-width: 134px;
+      height: 46px;
+      padding: 0 18px;
+      color: #071012;
+      border-color: transparent;
+      background: linear-gradient(135deg, var(--lime), var(--mint) 55%, #79a8ff);
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .overlay {
+      position: fixed;
+      z-index: 6;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      background:
+        radial-gradient(circle at 52% 36%, rgba(255, 77, 141, 0.18), transparent 32%),
+        rgba(5, 7, 11, 0.64);
+      backdrop-filter: blur(10px);
+    }
+
+    .dialog {
+      width: min(560px, 100%);
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      background: rgba(12, 15, 22, 0.92);
+      box-shadow: 0 28px 80px rgba(0, 0, 0, 0.55);
+    }
+
+    .poster {
+      position: relative;
+      min-height: 230px;
+      overflow: hidden;
+      background:
+        linear-gradient(115deg, rgba(255, 77, 141, 0.15), transparent 38%),
+        linear-gradient(245deg, rgba(51, 228, 202, 0.2), transparent 34%),
+        #111620;
+    }
+
+    .poster canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      cursor: default;
+    }
+
+    .poster-title {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 16px;
+      display: grid;
+      gap: 4px;
+      text-shadow: 0 3px 18px rgba(0, 0, 0, 0.8);
+    }
+
+    .poster-title h1 {
+      margin: 0;
+      max-width: 9ch;
+      font-size: clamp(2rem, 10vw, 4.5rem);
+      line-height: 0.88;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .poster-title p {
+      margin: 0;
+      color: #d9f7f4;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .dialog-body {
+      display: grid;
+      gap: 14px;
+      padding: 16px;
+    }
+
+    .score-line {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .chip {
+      min-width: 0;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .chip span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.72rem;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .chip strong {
+      display: block;
+      margin-top: 6px;
+      font-size: 1.18rem;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .result-note {
+      margin: 0;
+      color: #d9f7f4;
+      font-size: 0.86rem;
+      line-height: 1.35;
+    }
+
+    .dialog-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .dialog-actions .primary-button,
+    .dialog-actions .icon-button {
+      box-shadow: none;
+    }
+
+    .dialog-actions .primary-button {
+      flex: 1;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 640px) {
+      .hud {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .tile {
+        padding: 7px 8px;
+      }
+
+      .score-line {
+        grid-template-columns: 1fr;
+      }
+
+      .poster {
+        min-height: 210px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell" aria-label="Wink Pop Seoul">
+    <section class="hud" aria-label="遊戲狀態">
+      <div class="tile">
+        <div class="tile-row"><span>Score</span><span id="rank">Rookie</span></div>
+        <strong id="score">0</strong>
+        <div class="bar"><span id="scoreBar"></span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-row"><span>Fans</span><span id="followers">0</span></div>
+        <strong id="combo">x1</strong>
+        <div class="bar"><span id="comboBar"></span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-row"><span>Power</span><span id="powerLabel">Ready</span></div>
+        <strong id="power">0%</strong>
+        <div class="bar"><span id="powerBar"></span></div>
+      </div>
+      <div class="tile">
+        <div class="tile-row"><span>Incense</span><span id="time">90</span></div>
+        <strong id="danger">0%</strong>
+        <div class="bar danger"><span id="timeBar"></span></div>
+      </div>
+    </section>
+
+    <section class="game-wrap" aria-label="橫向捲軸遊戲區">
+      <canvas id="game"></canvas>
+    </section>
+
+    <section class="controls">
+      <button class="icon-button" id="muteBtn" type="button" aria-label="音效">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 9v6h4l5 4V5L8 9H4Z"></path>
+          <path id="waveA" d="M16 9.5c.7.7 1 1.5 1 2.5s-.3 1.8-1 2.5"></path>
+          <path id="waveB" d="M18.5 7c1.3 1.3 2 3 2 5s-.7 3.7-2 5"></path>
+        </svg>
+      </button>
+      <button class="icon-button" id="pauseBtn" type="button" aria-label="暫停">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M8 5v14"></path>
+          <path d="M16 5v14"></path>
+        </svg>
+      </button>
+    </section>
+  </main>
+
+  <section class="overlay" id="overlay">
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="title">
+      <div class="poster">
+        <canvas id="poster"></canvas>
+        <div class="poster-title">
+          <p>Seoul Pop Arcade</p>
+          <h1 id="title">Wink Pop Seoul</h1>
+        </div>
+      </div>
+      <div class="dialog-body">
+        <div class="score-line">
+          <div class="chip"><span>Best</span><strong id="best">0</strong></div>
+          <div class="chip"><span>Rank</span><strong id="bestRank">Rookie</strong></div>
+          <div class="chip"><span>Last</span><strong id="last">0</strong></div>
+        </div>
+        <p class="result-note" id="resultNote">Wink at fans before the incense burns out.</p>
+        <div class="dialog-actions">
+          <button class="primary-button" id="startBtn" type="button">Start Wink</button>
+          <button class="icon-button" id="resetBtn" type="button" aria-label="重置紀錄">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 12a9 9 0 1 0 3-6.7"></path>
+              <path d="M3 4v5h5"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    (() => {
+      const canvas = document.getElementById("game");
+      const ctx = canvas.getContext("2d");
+      const posterCanvas = document.getElementById("poster");
+      const posterCtx = posterCanvas.getContext("2d");
+      const TAU = Math.PI * 2;
+      const assetManifest = {
+        festivalBg: "assets/backgrounds/festival-market.png",
+        heroine: "assets/sprites/heroine-glam.png",
+        maleFan: "assets/sprites/male-fan.png",
+        manFan: "assets/sprites/man-fan.png",
+        rivalCute: "assets/sprites/rival-cute.png",
+        rivalStreet: "assets/sprites/rival-street.png",
+        rivalLuxury: "assets/sprites/rival-luxury.png",
+        maskedManager: "assets/sprites/masked-manager.png"
+      };
+      const assets = {};
+
+      for (const [name, src] of Object.entries(assetManifest)) {
+        const image = new Image();
+        image.onload = () => {
+          drawPoster();
+        };
+        image.src = src;
+        assets[name] = image;
+      }
+
+      const spriteSpec = {
+        heroine: { height: 176, head: 132 },
+        maleFan: { height: 144, head: 112 },
+        manFan: { height: 168, head: 132 },
+        rivalCute: { height: 148, head: 116 },
+        rivalStreet: { height: 158, head: 122 },
+        rivalLuxury: { height: 160, head: 124 },
+        maskedManager: { height: 152, head: 118 }
+      };
+
+      const ui = {
+        overlay: document.getElementById("overlay"),
+        overlayTitle: document.getElementById("title"),
+        score: document.getElementById("score"),
+        rank: document.getElementById("rank"),
+        combo: document.getElementById("combo"),
+        followers: document.getElementById("followers"),
+        power: document.getElementById("power"),
+        powerLabel: document.getElementById("powerLabel"),
+        time: document.getElementById("time"),
+        danger: document.getElementById("danger"),
+        scoreBar: document.getElementById("scoreBar"),
+        comboBar: document.getElementById("comboBar"),
+        powerBar: document.getElementById("powerBar"),
+        timeBar: document.getElementById("timeBar"),
+        best: document.getElementById("best"),
+        bestRank: document.getElementById("bestRank"),
+        last: document.getElementById("last"),
+        resultNote: document.getElementById("resultNote"),
+        startBtn: document.getElementById("startBtn"),
+        resetBtn: document.getElementById("resetBtn"),
+        pauseBtn: document.getElementById("pauseBtn"),
+        muteBtn: document.getElementById("muteBtn"),
+        waveA: document.getElementById("waveA"),
+        waveB: document.getElementById("waveB")
+      };
+
+      const storageKey = "wink-pop-seoul-best-v1";
+      const rand = (min, max) => min + Math.random() * (max - min);
+      const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
+      const lerp = (a, b, t) => a + (b - a) * t;
+      const lanes = [0.64, 0.69, 0.74, 0.79, 0.84];
+      const queryDuration = Number(new URLSearchParams(window.location.search).get("duration"));
+      const roundDuration = Number.isFinite(queryDuration) && queryDuration >= 5 && queryDuration <= 180 ? queryDuration : 90;
+
+      const game = {
+        width: 0,
+        height: 0,
+        dpr: 1,
+        running: false,
+        paused: false,
+        muted: false,
+        started: false,
+        score: 0,
+        best: Number(localStorage.getItem(storageKey) || 0),
+        lastScore: 0,
+        endReason: "",
+        timeWarning: 0,
+        time: roundDuration,
+        totalTime: roundDuration,
+        power: 0,
+        powerActive: 0,
+        danger: 0,
+        followers: 0,
+        combo: 1,
+        shake: 0,
+        flash: 0,
+        beat: 0,
+        worldX: 0,
+        speed: 112,
+        spawnAt: 420,
+        obstacleAt: 720,
+        target: null,
+        pointer: { x: 0, y: 0, down: false, clicks: 0, clickDecay: 0 },
+        player: { x: 210, y: 0, targetY: 0, step: 0, stun: 0 },
+        boys: [],
+        rivals: [],
+        obstacles: [],
+        followersLine: [],
+        hearts: [],
+        particles: [],
+        floats: [],
+        signs: []
+      };
+
+      const audio = {
+        ctx: null,
+        init() {
+          if (this.ctx || game.muted) return;
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (!AudioContext) return;
+          this.ctx = new AudioContext();
+        },
+        beep(freq, dur = 0.08, gain = 0.045, type = "triangle") {
+          if (!this.ctx || game.muted) return;
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const vol = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, now);
+          osc.frequency.exponentialRampToValueAtTime(freq * 1.25, now + dur);
+          vol.gain.setValueAtTime(gain, now);
+          vol.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+          osc.connect(vol).connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + dur);
+        },
+        charm() {
+          this.beep(720 + game.combo * 22, 0.08, 0.045);
+        },
+        bump() {
+          this.beep(140, 0.14, 0.05, "sawtooth");
+        },
+        start() {
+          this.beep(440, 0.07);
+          setTimeout(() => this.beep(660, 0.07), 90);
+          setTimeout(() => this.beep(880, 0.1), 180);
+        }
+      };
+
+      function rankFor(score) {
+        if (score >= 36000) return "Center";
+        if (score >= 24000) return "Ace";
+        if (score >= 14000) return "Main";
+        if (score >= 6500) return "Rising";
+        return "Rookie";
+      }
+
+      function resize() {
+        const rect = canvas.parentElement.getBoundingClientRect();
+        game.dpr = Math.min(window.devicePixelRatio || 1, 2);
+        game.width = Math.max(320, rect.width);
+        game.height = Math.max(420, rect.height);
+        canvas.width = Math.floor(game.width * game.dpr);
+        canvas.height = Math.floor(game.height * game.dpr);
+        canvas.style.width = `${game.width}px`;
+        canvas.style.height = `${game.height}px`;
+        ctx.setTransform(game.dpr, 0, 0, game.dpr, 0, 0);
+        game.player.x = clamp(game.width * 0.26, 116, 250);
+        if (!game.player.y) {
+          game.player.y = laneY(2);
+          game.player.targetY = game.player.y;
+        }
+        if (!game.pointer.x) {
+          game.pointer.x = game.player.x + 150;
+          game.pointer.y = game.player.y - 70;
+        }
+        drawPoster();
+      }
+
+      function laneY(index) {
+        return game.height * lanes[clamp(index, 0, lanes.length - 1)];
+      }
+
+      function walkMinY() {
+        return laneY(0);
+      }
+
+      function walkMaxY() {
+        return laneY(lanes.length - 1);
+      }
+
+      function resetGame() {
+        game.running = true;
+        game.paused = false;
+        game.started = true;
+        game.score = 0;
+        game.lastScore = 0;
+        game.endReason = "";
+        game.timeWarning = 0;
+        game.time = game.totalTime;
+        game.power = 0;
+        game.powerActive = 0;
+        game.danger = 0;
+        game.followers = 0;
+        game.combo = 1;
+        game.shake = 0;
+        game.flash = 0;
+        game.beat = 0;
+        game.worldX = 0;
+        game.speed = 112;
+        game.spawnAt = 280;
+        game.obstacleAt = 720;
+        game.target = null;
+        game.pointer.down = false;
+        game.pointer.clicks = 0;
+        game.pointer.clickDecay = 0;
+        game.player.y = laneY(2);
+        game.player.targetY = game.player.y;
+        game.player.step = 0;
+        game.player.stun = 0;
+        game.boys = [];
+        game.rivals = [];
+        game.obstacles = [];
+        game.followersLine = [];
+        game.hearts = [];
+        game.particles = [];
+        game.floats = [];
+        game.signs = [];
+        for (let i = 0; i < 14; i++) game.signs.push({ x: i * 320 + rand(20, 150), kind: i % 3 });
+        ui.overlayTitle.textContent = "Wink Pop Seoul";
+        ui.resultNote.textContent = "Wink at fans before the incense burns out.";
+        ui.overlay.classList.add("hidden");
+        audio.init();
+        audio.start();
+        syncUi();
+      }
+
+      function endGame(reason = "time") {
+        game.running = false;
+        game.pointer.down = false;
+        game.endReason = reason;
+        game.lastScore = Math.floor(game.score);
+        if (game.lastScore > game.best) {
+          game.best = game.lastScore;
+          localStorage.setItem(storageKey, String(game.best));
+        }
+        ui.last.textContent = game.lastScore.toLocaleString("en-US");
+        ui.best.textContent = game.best.toLocaleString("en-US");
+        ui.bestRank.textContent = rankFor(Math.max(game.best, game.lastScore));
+        ui.resultNote.textContent = reason === "time"
+          ? "TIME UP. The incense burned out, so this pop stage is over."
+          : "POP OVER. Check your score and start an encore.";
+        ui.overlayTitle.textContent = reason === "time" ? "TIME UP" : "Pop Over";
+        ui.startBtn.textContent = "Encore";
+        ui.overlay.classList.remove("hidden");
+        drawPoster();
+        syncUi();
+      }
+
+      function spawnBoy() {
+        const lane = Math.floor(rand(0, lanes.length));
+        const x = game.worldX + game.width + rand(120, 260);
+        const rare = Math.random() > 0.84;
+        const rival = Math.random() > 0.66;
+        const boy = {
+          id: Math.random(),
+          x,
+          y: laneY(lane),
+          lane,
+          charm: 0,
+          need: rare ? 1.2 : 1,
+          taps: 0,
+          rival,
+          captured: false,
+          color: rare ? "#c7ff4f" : (Math.random() > 0.5 ? "#33e4ca" : "#ff8fb8"),
+          hair: Math.random() > 0.5 ? "#222632" : "#36272c",
+          sprite: rare ? "manFan" : "maleFan",
+          height: rare ? spriteSpec.manFan.height : spriteSpec.maleFan.height,
+          headOffset: rare ? spriteSpec.manFan.head : spriteSpec.maleFan.head,
+          sway: rand(0, TAU),
+          score: rare ? 1050 : 620
+        };
+        game.boys.push(boy);
+        if (rival) {
+          const rivalSprites = ["rivalCute", "rivalStreet", "rivalLuxury"];
+          const sprite = rivalSprites[Math.floor(rand(0, rivalSprites.length))];
+          game.rivals.push({
+            x: x + rand(-52, 58),
+            y: clamp(boy.y + rand(-8, 8), walkMinY(), walkMaxY()),
+            lane,
+            life: 9,
+            sway: rand(0, TAU),
+            sprite,
+            height: spriteSpec[sprite].height,
+            color: Math.random() > 0.5 ? "#ff4d8d" : "#79a8ff"
+          });
+        }
+      }
+
+      function spawnObstacle() {
+        const lane = Math.floor(rand(0, lanes.length));
+        game.obstacles.push({
+          x: game.worldX + game.width + rand(180, 340),
+          y: laneY(lane),
+          lane,
+          kind: Math.random() > 0.45 ? "manager" : "camera",
+          hit: false,
+          sway: rand(0, TAU)
+        });
+      }
+
+      function setPointer(event) {
+        const point = event.touches ? event.touches[0] : event;
+        const rect = canvas.getBoundingClientRect();
+        game.pointer.x = clamp(point.clientX - rect.left, 0, game.width);
+        game.pointer.y = clamp(point.clientY - rect.top, 0, game.height);
+        game.player.targetY = clamp(game.pointer.y + 72, walkMinY(), walkMaxY());
+      }
+
+      function pointerDown(event) {
+        setPointer(event);
+        if (!game.running || game.paused) return;
+        game.pointer.down = true;
+        game.pointer.clicks += 1;
+        game.pointer.clickDecay = 0.34;
+        audio.init();
+      }
+
+      function pointerUp() {
+        game.pointer.down = false;
+      }
+
+      function chooseTarget() {
+        let best = null;
+        let bestScore = Infinity;
+        for (const boy of game.boys) {
+          if (boy.captured) continue;
+          const sx = boy.x - game.worldX;
+          if (sx < game.player.x + 20 || sx > game.width - 28) continue;
+          const distance = Math.hypot(sx - game.pointer.x, boy.y - boy.headOffset - game.pointer.y);
+          const lanePenalty = Math.abs(boy.y - game.player.y) * 0.45;
+          const score = distance + lanePenalty;
+          if (score < bestScore) {
+            bestScore = score;
+            best = boy;
+          }
+        }
+        return best;
+      }
+
+      function aimStateFor(target) {
+        if (!target) return null;
+        const sx = target.x - game.worldX;
+        const headY = target.y - target.headOffset;
+        const aim = Math.hypot(sx - game.pointer.x, headY - game.pointer.y);
+        const laneOk = Math.abs(target.y - game.player.y) < 72;
+        return { sx, headY, aim, laneOk, locked: aim < 92 && laneOk };
+      }
+
+      function addFloat(text, x, y, color = "#f8fbff") {
+        game.floats.push({ text, x, y, color, life: 1, vy: -46 });
+      }
+
+      function addHeart(x, y, color = "#ff4d8d") {
+        game.hearts.push({ x, y, vx: rand(-22, 22), vy: rand(-84, -46), rot: rand(-0.7, 0.7), size: rand(10, 18), life: 0.95, color });
+      }
+
+      function burst(x, y, color, count = 14) {
+        for (let i = 0; i < count; i++) {
+          const a = rand(0, TAU);
+          const speed = rand(55, 190);
+          game.particles.push({ x, y, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed - 35, life: rand(0.4, 0.82), max: 0.82, size: rand(2, 5), color });
+        }
+      }
+
+      function captureBoy(boy) {
+        boy.captured = true;
+        const gain = Math.round(boy.score * game.combo * (game.powerActive > 0 ? 1.5 : 1));
+        game.score += gain;
+        game.followers += 1;
+        game.combo = clamp(game.combo + 0.35, 1, 12);
+        game.power = clamp(game.power + 17, 0, 100);
+        if (game.power >= 100) {
+          game.power = 0;
+          game.powerActive = 8;
+          addFloat("POWER", game.player.x + 24, game.player.y - 130, "#c7ff4f");
+        }
+        game.followersLine.push({ y: boy.y, color: boy.color, hair: boy.hair, sprite: boy.sprite, delay: game.followersLine.length * 0.18, sway: rand(0, TAU) });
+        addFloat(`+${gain}`, boy.x - game.worldX, boy.y - boy.headOffset - 28, boy.color);
+        burst(boy.x - game.worldX, boy.y - boy.headOffset, boy.color, 18);
+        for (let i = 0; i < 8; i++) addHeart(boy.x - game.worldX + rand(-18, 18), boy.y - boy.headOffset, boy.color);
+        audio.charm();
+      }
+
+      function hitObstacle(obstacle) {
+        obstacle.hit = true;
+        game.time = Math.max(0, game.time - 5);
+        game.combo = 1;
+        game.shake = 12;
+        game.flash = 0.35;
+        game.player.stun = 0.7;
+        game.danger = clamp(game.danger + 25, 0, 100);
+        addFloat("-5s", obstacle.x - game.worldX, obstacle.y - 88, "#ff5050");
+        burst(game.player.x, game.player.y - 60, "#ff5050", 12);
+        audio.bump();
+      }
+
+      function update(dt) {
+        game.beat += dt;
+        game.shake = Math.max(0, game.shake - dt * 24);
+        game.flash = Math.max(0, game.flash - dt * 2.8);
+        if (!game.running || game.paused) {
+          game.player.step += dt * 8;
+          return;
+        }
+
+        game.time -= dt;
+        game.powerActive = Math.max(0, game.powerActive - dt);
+        game.pointer.clickDecay = Math.max(0, game.pointer.clickDecay - dt);
+        if (game.pointer.clickDecay === 0) game.pointer.clicks = Math.max(0, game.pointer.clicks - dt * 6);
+        game.player.stun = Math.max(0, game.player.stun - dt);
+
+        let target = chooseTarget();
+        let aimState = game.pointer.down && target ? aimStateFor(target) : null;
+        let charmLocked = Boolean(aimState && aimState.locked);
+        const motionDt = charmLocked ? 0 : dt;
+        game.player.step += motionDt * 8;
+        game.speed = lerp(game.speed, game.player.stun ? 52 : 126 + Math.min(50, game.followers * 1.6), dt * 1.6);
+        game.worldX += game.speed * motionDt;
+        game.player.y = lerp(game.player.y, game.player.targetY, motionDt * 8);
+
+        if (game.worldX > game.spawnAt) {
+          spawnBoy();
+          game.spawnAt += rand(230, 390);
+        }
+        if (game.worldX > game.obstacleAt) {
+          spawnObstacle();
+          game.obstacleAt += rand(580, 850);
+        }
+
+        if (!charmLocked) {
+          target = chooseTarget();
+          aimState = game.pointer.down && target ? aimStateFor(target) : null;
+          charmLocked = Boolean(aimState && aimState.locked);
+        }
+        game.target = target;
+        if (aimState && aimState.locked) {
+          const rivalNearby = target.rival && game.rivals.some(r => Math.abs(r.x - target.x) < 80 && Math.abs(r.y - target.y) < 54);
+          const tapBoost = rivalNearby ? clamp(game.pointer.clicks / 5, 0.35, 1.45) : 1;
+          const powerBoost = game.powerActive > 0 ? 2.1 : 1;
+          target.charm += dt * (0.72 + powerBoost) * tapBoost;
+          if (rivalNearby && game.pointer.clicks >= 4) target.taps += dt * 2.5;
+          if (Math.random() < 0.2) addHeart(aimState.sx, aimState.headY, target.color);
+          if (target.charm >= target.need && (!rivalNearby || target.taps >= 0.85)) captureBoy(target);
+        }
+
+        for (const boy of game.boys) {
+          if (charmLocked && boy === target) continue;
+          boy.sway += dt * 4.5;
+        }
+        for (const rival of game.rivals) {
+          rival.sway += dt * 4;
+          rival.life -= dt;
+        }
+        for (const obstacle of game.obstacles) {
+          obstacle.sway += dt * 4;
+          const sx = obstacle.x - game.worldX;
+          if (!obstacle.hit && Math.abs(sx - game.player.x) < 34 && Math.abs(obstacle.y - game.player.y) < 44) hitObstacle(obstacle);
+        }
+
+        game.boys = game.boys.filter(boy => !boy.captured && boy.x - game.worldX > -120);
+        game.rivals = game.rivals.filter(rival => rival.x - game.worldX > -120 && rival.life > 0);
+        game.obstacles = game.obstacles.filter(obstacle => obstacle.x - game.worldX > -160);
+        game.signs = game.signs.filter(sign => sign.x - game.worldX > -420);
+        while (game.signs.length < 18) {
+          const far = Math.max(game.worldX + game.width, ...game.signs.map(s => s.x));
+          game.signs.push({ x: far + rand(220, 360), kind: Math.floor(rand(0, 3)) });
+        }
+
+        for (const heart of game.hearts) {
+          heart.x += heart.vx * dt;
+          heart.y += heart.vy * dt;
+          heart.vy += 42 * dt;
+          heart.rot += dt * 1.4;
+          heart.life -= dt;
+        }
+        game.hearts = game.hearts.filter(heart => heart.life > 0);
+
+        for (const particle of game.particles) {
+          particle.x += particle.vx * dt;
+          particle.y += particle.vy * dt;
+          particle.vy += 190 * dt;
+          particle.life -= dt;
+        }
+        game.particles = game.particles.filter(p => p.life > 0);
+
+        for (const float of game.floats) {
+          float.y += float.vy * dt;
+          float.life -= dt;
+        }
+        game.floats = game.floats.filter(float => float.life > 0);
+
+        game.danger = Math.max(0, game.danger - dt * 9);
+        const secondsLeft = Math.ceil(game.time);
+        if (secondsLeft <= 10 && secondsLeft > 0 && secondsLeft !== game.timeWarning) {
+          game.timeWarning = secondsLeft;
+          addFloat(String(secondsLeft), game.width * 0.5, game.height * 0.28, secondsLeft <= 3 ? "#ff5050" : "#ffbf3d");
+          if (secondsLeft <= 5) audio.bump();
+        }
+
+        if (game.time <= 0) endGame("time");
+        syncUi();
+      }
+
+      function syncUi() {
+        const score = Math.floor(game.score);
+        ui.score.textContent = score.toLocaleString("en-US");
+        ui.rank.textContent = rankFor(score);
+        ui.combo.textContent = `x${Math.floor(game.combo)}`;
+        ui.followers.textContent = String(game.followers);
+        ui.power.textContent = game.powerActive > 0 ? `${Math.ceil(game.powerActive)}s` : `${Math.round(game.power)}%`;
+        ui.powerLabel.textContent = game.powerActive > 0 ? "On" : "Ready";
+        ui.time.textContent = String(Math.max(0, Math.ceil(game.time)));
+        ui.danger.textContent = `${Math.round(game.danger)}%`;
+        ui.best.textContent = game.best.toLocaleString("en-US");
+        ui.last.textContent = game.lastScore.toLocaleString("en-US");
+        ui.bestRank.textContent = rankFor(game.best);
+        ui.scoreBar.style.width = `${clamp((score % 7000) / 70, 8, 100)}%`;
+        ui.comboBar.style.width = `${clamp(game.combo / 12 * 100, 8, 100)}%`;
+        ui.powerBar.style.width = `${game.powerActive > 0 ? 100 : clamp(game.power, 0, 100)}%`;
+        ui.timeBar.style.width = `${clamp(game.time / game.totalTime * 100, 0, 100)}%`;
+      }
+
+      function roundedRect(target, x, y, w, h, r) {
+        const radius = Math.min(r, Math.abs(w) / 2, Math.abs(h) / 2);
+        target.beginPath();
+        target.moveTo(x + radius, y);
+        target.lineTo(x + w - radius, y);
+        target.quadraticCurveTo(x + w, y, x + w, y + radius);
+        target.lineTo(x + w, y + h - radius);
+        target.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+        target.lineTo(x + radius, y + h);
+        target.quadraticCurveTo(x, y + h, x, y + h - radius);
+        target.lineTo(x, y + radius);
+        target.quadraticCurveTo(x, y, x + radius, y);
+        target.closePath();
+      }
+
+      function imageReady(image) {
+        return image && image.complete && image.naturalWidth > 0;
+      }
+
+      function drawImageCover(target, image, x, y, w, h) {
+        const imageRatio = image.naturalWidth / image.naturalHeight;
+        const boxRatio = w / h;
+        let sx = 0;
+        let sy = 0;
+        let sw = image.naturalWidth;
+        let sh = image.naturalHeight;
+        if (imageRatio > boxRatio) {
+          sw = image.naturalHeight * boxRatio;
+          sx = (image.naturalWidth - sw) / 2;
+        } else {
+          sh = image.naturalWidth / boxRatio;
+          sy = (image.naturalHeight - sh) / 2;
+        }
+        target.drawImage(image, sx, sy, sw, sh, x, y, w, h);
+      }
+
+      function drawSprite(target, sprite, x, footY, height, options = {}) {
+        const image = assets[sprite];
+        if (!imageReady(image)) return false;
+        const bob = options.bob || 0;
+        const alpha = options.alpha ?? 1;
+        const width = image.naturalWidth / image.naturalHeight * height;
+        target.save();
+        target.globalAlpha = alpha;
+        target.fillStyle = "rgba(64, 38, 22, 0.28)";
+        target.beginPath();
+        target.ellipse(x, footY + 7, width * 0.28, 10, 0, 0, TAU);
+        target.fill();
+        target.drawImage(image, x - width / 2, footY - height + bob, width, height);
+        target.restore();
+        return true;
+      }
+
+      function drawStreet(target, w, h, offset = game.worldX) {
+        if (imageReady(assets.festivalBg)) {
+          const scroll = (offset * 0.18) % w;
+          drawImageCover(target, assets.festivalBg, -scroll, 0, w, h);
+          drawImageCover(target, assets.festivalBg, w - scroll, 0, w, h);
+
+          const roadTop = h * 0.36;
+          const roadShade = target.createLinearGradient(0, roadTop, 0, h);
+          roadShade.addColorStop(0, "rgba(255,221,154,0.04)");
+          roadShade.addColorStop(0.62, "rgba(97,49,27,0.14)");
+          roadShade.addColorStop(1, "rgba(16,11,10,0.28)");
+          target.fillStyle = roadShade;
+          target.fillRect(0, roadTop, w, h - roadTop);
+          target.strokeStyle = "rgba(255,245,210,0.2)";
+          target.lineWidth = 1;
+          for (let i = 0; i < lanes.length + 1; i++) {
+            const y = h * (0.385 + i * 0.09);
+            target.beginPath();
+            target.moveTo(0, y);
+            target.lineTo(w, y);
+            target.stroke();
+          }
+          target.fillStyle = "rgba(0,0,0,0.22)";
+          target.fillRect(0, 0, w, 28);
+          return;
+        }
+
+        const sky = target.createLinearGradient(0, 0, 0, h);
+        sky.addColorStop(0, "#2a241d");
+        sky.addColorStop(0.42, "#403327");
+        sky.addColorStop(1, "#111018");
+        target.fillStyle = sky;
+        target.fillRect(0, 0, w, h);
+
+        const horizon = h * 0.34;
+        target.fillStyle = "#241d1c";
+        for (let i = -1; i < 8; i++) {
+          const x = i * 220 - (offset * 0.25 % 220);
+          const bw = 150 + (i % 3) * 32;
+          const bh = 120 + ((i + 2) % 4) * 34;
+          roundedRect(target, x, horizon - bh + 26, bw, bh, 5);
+          target.fill();
+          target.fillStyle = i % 2 ? "rgba(255,205,107,0.24)" : "rgba(255,118,72,0.2)";
+          for (let wy = horizon - bh + 48; wy < horizon + 6; wy += 30) {
+            for (let wx = x + 18; wx < x + bw - 20; wx += 34) target.fillRect(wx, wy, 14, 10);
+          }
+          target.fillStyle = "#241d1c";
+        }
+
+        for (const sign of game.signs) {
+          const sx = sign.x - offset * 0.55;
+          if (sx < -180 || sx > w + 180) continue;
+          target.save();
+          target.translate(sx, horizon - 30 - (sign.kind * 22));
+          const colors = ["#ff4d8d", "#33e4ca", "#c7ff4f"];
+          target.fillStyle = "rgba(0,0,0,0.38)";
+          roundedRect(target, -58, -20, 116, 40, 8);
+          target.fill();
+          target.strokeStyle = colors[sign.kind];
+          target.lineWidth = 2;
+          roundedRect(target, -58, -20, 116, 40, 8);
+          target.stroke();
+          target.fillStyle = colors[sign.kind];
+          target.font = "900 13px system-ui";
+          target.textAlign = "center";
+          target.textBaseline = "middle";
+          target.fillText(["MUSIC BANK", "SEOUL STAGE", "IDOL SHOP"][sign.kind], 0, 0);
+          target.restore();
+        }
+
+        for (let x = -80 - (offset * 0.9 % 155); x < w + 160; x += 155) {
+          target.save();
+          target.translate(x, horizon - 112);
+          target.strokeStyle = "rgba(80,45,24,0.85)";
+          target.lineWidth = 3;
+          target.beginPath();
+          target.moveTo(0, -28);
+          target.lineTo(0, 35);
+          target.stroke();
+          const lantern = target.createRadialGradient(-6, -2, 3, 0, 2, 24);
+          lantern.addColorStop(0, "#fff5b5");
+          lantern.addColorStop(0.45, "#ffbf37");
+          lantern.addColorStop(1, "#cf4b16");
+          target.fillStyle = lantern;
+          target.beginPath();
+          target.ellipse(0, 0, 18, 27, 0, 0, TAU);
+          target.fill();
+          target.strokeStyle = "#7c2c17";
+          target.lineWidth = 2;
+          target.beginPath();
+          target.moveTo(-16, -6);
+          target.lineTo(16, -6);
+          target.moveTo(-14, 10);
+          target.lineTo(14, 10);
+          target.stroke();
+          target.restore();
+        }
+
+        const roadTop = h * 0.36;
+        const road = target.createLinearGradient(0, roadTop, 0, h);
+        road.addColorStop(0, "#d99758");
+        road.addColorStop(0.42, "#c77b42");
+        road.addColorStop(1, "#49372c");
+        target.fillStyle = road;
+        target.beginPath();
+        target.moveTo(0, roadTop);
+        target.lineTo(w, roadTop);
+        target.lineTo(w, h);
+        target.lineTo(0, h);
+        target.closePath();
+        target.fill();
+
+        target.strokeStyle = "rgba(255,255,255,0.1)";
+        target.lineWidth = 1;
+        for (let i = 0; i < lanes.length + 1; i++) {
+          const y = h * (0.385 + i * 0.09);
+          target.beginPath();
+          target.moveTo(0, y);
+          target.lineTo(w, y);
+          target.stroke();
+        }
+
+        for (let x = -(offset % 120); x < w + 120; x += 120) {
+          target.fillStyle = "rgba(255,238,185,0.32)";
+          target.fillRect(x, h * 0.85, 60, 4);
+          target.fillStyle = x % 240 === 0 ? "rgba(255,221,116,0.15)" : "rgba(255,117,76,0.14)";
+          target.fillRect(x + 16, roadTop + 10, 38, h - roadTop - 10);
+        }
+
+        target.fillStyle = "rgba(255,255,255,0.08)";
+        for (let i = 0; i < 8; i++) {
+          const x = i * 210 - (offset * 0.8 % 210);
+          target.fillRect(x, roadTop - 38, 8, 52);
+          target.beginPath();
+          target.arc(x + 4, roadTop - 44, 16, 0, TAU);
+          target.fill();
+        }
+      }
+
+      function drawFlower(target, x, y, scale = 1, color = "#ffd83d") {
+        target.save();
+        target.translate(x, y);
+        target.scale(scale, scale);
+        for (let i = 0; i < 8; i++) {
+          target.rotate(TAU / 8);
+          target.fillStyle = color;
+          target.beginPath();
+          target.ellipse(0, -7, 3.2, 7, 0, 0, TAU);
+          target.fill();
+        }
+        target.fillStyle = "#ff9f2d";
+        target.beginPath();
+        target.arc(0, 0, 4, 0, TAU);
+        target.fill();
+        target.restore();
+      }
+
+      function drawAnimeEye(target, x, y, scale = 1, iris = "#8b3f35", flip = 1) {
+        target.save();
+        target.translate(x, y);
+        target.scale(scale * flip, scale);
+        target.fillStyle = "#fff7ef";
+        target.beginPath();
+        target.ellipse(0, 0, 8, 10, -0.08, 0, TAU);
+        target.fill();
+        target.strokeStyle = "#5b2328";
+        target.lineWidth = 1.6;
+        target.stroke();
+        target.fillStyle = iris;
+        target.beginPath();
+        target.ellipse(1, 1, 4.7, 6.3, 0, 0, TAU);
+        target.fill();
+        target.fillStyle = "#21111a";
+        target.beginPath();
+        target.ellipse(1.5, 1.3, 2.5, 4.2, 0, 0, TAU);
+        target.fill();
+        target.fillStyle = "#ffffff";
+        target.beginPath();
+        target.arc(-1.7, -3.2, 2.1, 0, TAU);
+        target.arc(3.1, 4.1, 1, 0, TAU);
+        target.fill();
+        target.strokeStyle = "#2b1621";
+        target.lineWidth = 2;
+        target.beginPath();
+        target.moveTo(-8, -9);
+        target.quadraticCurveTo(1, -14, 10, -7);
+        target.stroke();
+        target.restore();
+      }
+
+      function drawPerson(target, x, y, opts = {}) {
+        const scale = opts.scale || 1;
+        const color = opts.color || "#33e4ca";
+        const hair = opts.hair || "#222632";
+        const sway = Math.sin(opts.sway || 0) * 4;
+        target.save();
+        target.translate(x, y + sway);
+        target.scale(scale, scale);
+        target.fillStyle = "rgba(0,0,0,0.25)";
+        target.beginPath();
+        target.ellipse(0, 31, 25, 8, 0, 0, TAU);
+        target.fill();
+        const shirt = target.createLinearGradient(-17, -4, 18, 42);
+        shirt.addColorStop(0, opts.body || "#f7fbff");
+        shirt.addColorStop(1, opts.bodyDark || "#273247");
+        target.fillStyle = shirt;
+        roundedRect(target, -17, -3, 34, 48, 10);
+        target.fill();
+        target.strokeStyle = "rgba(255,255,255,0.42)";
+        target.lineWidth = 1;
+        target.beginPath();
+        target.moveTo(-7, 2);
+        target.lineTo(-7, 39);
+        target.stroke();
+
+        target.fillStyle = "#ffd3bb";
+        target.beginPath();
+        target.arc(0, -24, 19, 0, TAU);
+        target.fill();
+        target.fillStyle = hair;
+        target.beginPath();
+        target.arc(-1, -30, 20, Math.PI * 0.9, TAU);
+        target.lineTo(19, -18);
+        target.quadraticCurveTo(2, -9, -18, -19);
+        target.lineTo(-21, -27);
+        target.closePath();
+        target.fill();
+        drawAnimeEye(target, -6, -22, 0.5, "#5e3a33");
+        drawAnimeEye(target, 7, -22, 0.5, "#5e3a33");
+        target.strokeStyle = opts.smile === false ? "#7d3036" : "#bd5367";
+        target.lineWidth = 2;
+        target.beginPath();
+        if (opts.smile === false) {
+          target.arc(0, -10, 5, Math.PI + 0.15, TAU - 0.15);
+        } else {
+          target.arc(0, -12, 6, 0.15, Math.PI - 0.15);
+        }
+        target.stroke();
+        if (opts.sign) {
+          target.fillStyle = color;
+          roundedRect(target, -26, -58, 52, 20, 6);
+          target.fill();
+          target.fillStyle = "#071012";
+          target.font = "900 14px system-ui";
+          target.textAlign = "center";
+          target.textBaseline = "middle";
+          target.fillText(opts.sign, 0, -48);
+        }
+        target.restore();
+      }
+
+      function drawIdol(target, x, y, scale = 1, poster = false) {
+        if (drawSprite(target, "heroine", x, y, (poster ? 168 : spriteSpec.heroine.height) * scale, { bob: Math.sin(game.player.step) * 2 })) {
+          if (game.powerActive > 0 || poster) {
+            target.save();
+            target.globalCompositeOperation = "lighter";
+            target.strokeStyle = "rgba(255,216,31,0.78)";
+            target.lineWidth = 4;
+            target.beginPath();
+            target.arc(x, y - 92 * scale, 74 * scale + Math.sin(game.beat * 8) * 4, 0.2, TAU - 0.2);
+            target.stroke();
+            target.restore();
+          }
+          return;
+        }
+
+        const step = Math.sin(game.player.step) * 5;
+        target.save();
+        target.translate(x, y);
+        target.scale(scale, scale);
+        target.fillStyle = "rgba(70,49,28,0.28)";
+        target.beginPath();
+        target.ellipse(0, 42, 39, 11, 0, 0, TAU);
+        target.fill();
+
+        target.strokeStyle = "#ffe8c2";
+        target.lineWidth = 7;
+        target.lineCap = "round";
+        target.beginPath();
+        target.moveTo(-20, -24);
+        target.lineTo(-45, -2 + step * 0.15);
+        target.moveTo(21, -23);
+        target.lineTo(45, -9 - step * 0.15);
+        target.stroke();
+        target.fillStyle = "#ffe8c2";
+        target.beginPath();
+        target.arc(-47, -1 + step * 0.15, 5.5, 0, TAU);
+        target.arc(47, -9 - step * 0.15, 5.5, 0, TAU);
+        target.fill();
+
+        const sleeve = target.createLinearGradient(-34, -32, 34, 40);
+        sleeve.addColorStop(0, "#fffce8");
+        sleeve.addColorStop(0.58, "#fff3a9");
+        sleeve.addColorStop(1, "#f9d957");
+        target.fillStyle = sleeve;
+        target.beginPath();
+        target.moveTo(-30, -35);
+        target.quadraticCurveTo(-43, -6, -28, 31);
+        target.lineTo(-9, 43);
+        target.quadraticCurveTo(-2, -3, -12, -37);
+        target.closePath();
+        target.moveTo(23, -34);
+        target.quadraticCurveTo(43, -8, 34, 28);
+        target.lineTo(10, 41);
+        target.quadraticCurveTo(4, -2, 8, -37);
+        target.closePath();
+        target.fill();
+
+        const dress = target.createLinearGradient(-30, -37, 28, 57);
+        dress.addColorStop(0, "#fffdf1");
+        dress.addColorStop(0.5, "#fff4a5");
+        dress.addColorStop(1, "#ffd84c");
+        target.fillStyle = dress;
+        target.beginPath();
+        target.moveTo(-21, -38);
+        target.quadraticCurveTo(0, -47, 22, -37);
+        target.lineTo(32, 52);
+        target.quadraticCurveTo(0, 70, -32, 52);
+        target.closePath();
+        target.fill();
+        target.fillStyle = "#62a9e8";
+        roundedRect(target, 5, -8, 18, 45, 5);
+        target.fill();
+        target.fillStyle = "rgba(255,255,255,0.7)";
+        target.fillRect(7, -3, 14, 5);
+
+        for (const spot of [[-11, -22, 0.7], [-18, 10, 0.6], [15, 21, 0.58], [-4, 44, 0.62], [23, 48, 0.48]]) {
+          drawFlower(target, spot[0], spot[1], spot[2], "#ffd91f");
+        }
+
+        target.fillStyle = "#ffe7c8";
+        target.beginPath();
+        target.moveTo(-16, 55);
+        target.lineTo(-4, 58);
+        target.lineTo(-5, 82 + step);
+        target.lineTo(-17, 82 + step);
+        target.closePath();
+        target.moveTo(5, 58);
+        target.lineTo(18, 55);
+        target.lineTo(18, 82 - step);
+        target.lineTo(6, 82 - step);
+        target.closePath();
+        target.fill();
+        target.fillStyle = "#9a2b4a";
+        roundedRect(target, -22, 80 + step, 20, 8, 5);
+        roundedRect(target, 4, 80 - step, 22, 8, 5);
+        target.fill();
+
+        const skin = target.createRadialGradient(-12, -78, 4, 0, -74, 40);
+        skin.addColorStop(0, "#fff0dc");
+        skin.addColorStop(0.72, "#ffd9bd");
+        skin.addColorStop(1, "#f2b692");
+        target.fillStyle = skin;
+        target.beginPath();
+        target.ellipse(0, -74, 35, 38, 0, 0, TAU);
+        target.fill();
+
+        const hair = target.createLinearGradient(-38, -114, 34, -38);
+        hair.addColorStop(0, "#171923");
+        hair.addColorStop(0.62, "#282b34");
+        hair.addColorStop(1, "#43424a");
+        target.fillStyle = hair;
+        target.beginPath();
+        target.arc(-8, -83, 42, Math.PI * 0.78, Math.PI * 1.98);
+        target.lineTo(30, -48);
+        target.quadraticCurveTo(10, -34, -4, -50);
+        target.quadraticCurveTo(-22, -37, -40, -51);
+        target.lineTo(-45, -80);
+        target.closePath();
+        target.fill();
+
+        target.strokeStyle = "rgba(255,255,255,0.38)";
+        target.lineWidth = 1.5;
+        target.beginPath();
+        target.moveTo(-21, -109);
+        target.quadraticCurveTo(-9, -99, -8, -83);
+        target.moveTo(4, -113);
+        target.quadraticCurveTo(14, -96, 8, -77);
+        target.stroke();
+
+        drawFlower(target, -29, -90, 0.82, "#ffd91f");
+        target.fillStyle = "#ffffff";
+        target.beginPath();
+        target.arc(-22, -93, 3, 0, TAU);
+        target.fill();
+
+        const faceFront = target.createRadialGradient(-6, -80, 3, 4, -72, 34);
+        faceFront.addColorStop(0, "#fff2de");
+        faceFront.addColorStop(0.72, "#ffd9bd");
+        faceFront.addColorStop(1, "#efb08d");
+        target.fillStyle = faceFront;
+        target.beginPath();
+        target.ellipse(5, -72, 28, 32, 0, 0, TAU);
+        target.fill();
+        target.fillStyle = hair;
+        target.beginPath();
+        target.moveTo(-28, -96);
+        target.quadraticCurveTo(-8, -115, 18, -98);
+        target.quadraticCurveTo(10, -86, -2, -83);
+        target.quadraticCurveTo(-16, -80, -31, -72);
+        target.quadraticCurveTo(-37, -84, -28, -96);
+        target.closePath();
+        target.fill();
+        target.strokeStyle = "rgba(255,255,255,0.32)";
+        target.lineWidth = 1.4;
+        target.beginPath();
+        target.moveTo(-12, -101);
+        target.quadraticCurveTo(0, -94, 0, -83);
+        target.stroke();
+
+        drawAnimeEye(target, -11, -74, 0.84, "#8b3f35");
+        drawAnimeEye(target, 14, -74, 0.84, "#8b3f35");
+
+        target.strokeStyle = "rgba(129,65,50,0.45)";
+        target.lineWidth = 1.2;
+        target.beginPath();
+        target.moveTo(0, -69);
+        target.lineTo(-2, -63);
+        target.stroke();
+        target.strokeStyle = "#c94e65";
+        target.lineWidth = 2;
+        target.beginPath();
+        target.arc(3, -56, 7, 0.18, Math.PI - 0.18);
+        target.stroke();
+        target.fillStyle = "rgba(255,107,141,0.22)";
+        target.beginPath();
+        target.arc(-20, -61, 6, 0, TAU);
+        target.arc(23, -61, 6, 0, TAU);
+        target.fill();
+
+        if (game.powerActive > 0 || poster) {
+          target.save();
+          target.globalCompositeOperation = "lighter";
+          target.strokeStyle = "rgba(255,216,31,0.72)";
+          target.lineWidth = 3;
+          target.beginPath();
+          target.arc(0, -40, 72 + Math.sin(game.beat * 8) * 4, 0.2, TAU - 0.2);
+          target.stroke();
+          target.restore();
+        }
+        target.restore();
+      }
+
+      function drawHeart(target, x, y, size, rot, color, alpha = 1) {
+        target.save();
+        target.translate(x, y);
+        target.rotate(rot);
+        target.scale(size / 16, size / 16);
+        target.globalAlpha *= alpha;
+        target.fillStyle = color;
+        target.beginPath();
+        target.moveTo(0, 7);
+        target.bezierCurveTo(-18, -5, -9, -18, 0, -8);
+        target.bezierCurveTo(9, -18, 18, -5, 0, 7);
+        target.fill();
+        target.restore();
+      }
+
+      function drawBoy(boy) {
+        const sx = boy.x - game.worldX;
+        const spriteDrawn = drawSprite(ctx, boy.sprite, sx, boy.y, boy.height, { bob: Math.sin(boy.sway) * 3 });
+        if (!spriteDrawn) drawPerson(ctx, sx, boy.y, { color: boy.color, hair: boy.hair, sign: "♡", sway: boy.sway });
+        const fill = clamp(boy.charm / boy.need, 0, 1);
+        ctx.save();
+        ctx.translate(sx, boy.y - boy.headOffset - 22);
+        ctx.fillStyle = "rgba(0,0,0,0.44)";
+        roundedRect(ctx, -27, -7, 54, 14, 7);
+        ctx.fill();
+        ctx.fillStyle = boy.color;
+        roundedRect(ctx, -24, -4, 48 * fill, 8, 5);
+        ctx.fill();
+        if (boy.rival) {
+          ctx.fillStyle = "#ffbf3d";
+          ctx.font = "900 12px system-ui";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText("TAP", 0, -20);
+        }
+        ctx.restore();
+      }
+
+      function drawRival(rival) {
+        const sx = rival.x - game.worldX;
+        const spriteDrawn = drawSprite(ctx, rival.sprite, sx, rival.y, rival.height, { bob: Math.sin(rival.sway) * 3 });
+        if (!spriteDrawn) drawPerson(ctx, sx, rival.y, { color: rival.color, body: "#3a2638", hair: "#3a2738", sign: "!", sway: rival.sway, smile: false, scale: 0.95 });
+        ctx.save();
+        ctx.translate(sx, rival.y - rival.height + 24);
+        ctx.fillStyle = "rgba(255,80,141,0.92)";
+        roundedRect(ctx, -21, -8, 42, 17, 7);
+        ctx.fill();
+        ctx.fillStyle = "#fff8fb";
+        ctx.font = "900 12px system-ui";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("!", 0, 0);
+        ctx.restore();
+      }
+
+      function drawObstacle(obstacle) {
+        const sx = obstacle.x - game.worldX;
+        if (obstacle.kind === "manager") {
+          if (drawSprite(ctx, "maskedManager", sx, obstacle.y, spriteSpec.maskedManager.height, { bob: Math.sin(obstacle.sway) * 3 })) {
+            return;
+          }
+          drawPerson(ctx, sx, obstacle.y, { color: "#ff5050", body: "#323845", hair: "#1a1d24", sign: "M", sway: obstacle.sway, smile: false, scale: 1.04 });
+          ctx.save();
+          ctx.translate(sx, obstacle.y - 22 + Math.sin(obstacle.sway) * 4);
+          ctx.fillStyle = "rgba(255,255,255,0.9)";
+          roundedRect(ctx, -13, -6, 26, 10, 5);
+          ctx.fill();
+          ctx.fillStyle = "#111721";
+          ctx.beginPath();
+          ctx.arc(-5, -1, 2, 0, TAU);
+          ctx.arc(5, -1, 2, 0, TAU);
+          ctx.fill();
+          ctx.restore();
+        } else {
+          ctx.save();
+          ctx.translate(sx, obstacle.y);
+          ctx.fillStyle = "rgba(0,0,0,0.25)";
+          ctx.beginPath();
+          ctx.ellipse(0, 28, 24, 7, 0, 0, TAU);
+          ctx.fill();
+          ctx.fillStyle = "#202734";
+          roundedRect(ctx, -22, -28, 44, 42, 9);
+          ctx.fill();
+          ctx.fillStyle = "#ff5050";
+          ctx.beginPath();
+          ctx.arc(0, -8, 11, 0, TAU);
+          ctx.fill();
+          ctx.strokeStyle = "rgba(255,255,255,0.7)";
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(-28, -42);
+          ctx.lineTo(28, -42);
+          ctx.moveTo(0, -28);
+          ctx.lineTo(0, 32);
+          ctx.stroke();
+          ctx.restore();
+        }
+      }
+
+      function drawBeam() {
+        if (!game.pointer.down || !game.running || game.paused || !game.target) return;
+        const sx = game.player.x + 18;
+        const sy = game.player.y - 78;
+        const ex = game.pointer.x;
+        const ey = game.pointer.y;
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+        const g = ctx.createLinearGradient(sx, sy, ex, ey);
+        g.addColorStop(0, "rgba(255,77,141,0.95)");
+        g.addColorStop(0.5, "rgba(255,255,255,0.9)");
+        g.addColorStop(1, "rgba(51,228,202,0.72)");
+        ctx.strokeStyle = g;
+        ctx.lineWidth = 7 + Math.sin(game.beat * 18) * 1.5;
+        ctx.lineCap = "round";
+        ctx.shadowColor = "#ff4d8d";
+        ctx.shadowBlur = 22;
+        ctx.beginPath();
+        ctx.moveTo(sx, sy);
+        ctx.lineTo(ex, ey);
+        ctx.stroke();
+        ctx.strokeStyle = "rgba(199,255,79,0.88)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(sx, sy + 5);
+        ctx.lineTo(ex, ey);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function drawFollowers() {
+        for (let i = 0; i < game.followersLine.length; i++) {
+          const follower = game.followersLine[i];
+          const x = game.player.x - 64 - i * 34;
+          const y = lerp(follower.y, game.player.y + ((i % 2) * 18 - 8), 0.58);
+          if (!drawSprite(ctx, follower.sprite || "maleFan", x, y, 96, { bob: Math.sin(game.beat * 3 + i) * 2, alpha: 0.92 })) {
+            drawPerson(ctx, x, y, { color: follower.color, hair: follower.hair, sign: i % 2 ? "★" : "♡", sway: game.beat * 3 + i, scale: 0.78 });
+          }
+        }
+      }
+
+      function drawIncense() {
+        const cx = game.width * 0.5;
+        const urgent = game.running && game.time <= 10;
+        const cy = urgent ? 48 : 22;
+        const r = urgent ? 38 : 24;
+        const p = clamp(game.time / game.totalTime, 0, 1);
+        ctx.save();
+        ctx.translate(cx, cy);
+        if (urgent) {
+          ctx.fillStyle = "rgba(8, 9, 14, 0.72)";
+          roundedRect(ctx, -118, -42, 236, 84, 12);
+          ctx.fill();
+          ctx.strokeStyle = "rgba(255,80,80,0.88)";
+          ctx.lineWidth = 2;
+          roundedRect(ctx, -118, -42, 236, 84, 12);
+          ctx.stroke();
+        }
+        ctx.strokeStyle = urgent ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.18)";
+        ctx.lineWidth = urgent ? 7 : 5;
+        ctx.beginPath();
+        ctx.arc(0, 0, r, 0, TAU);
+        ctx.stroke();
+        ctx.strokeStyle = game.time < 18 ? "#ff5050" : "#ffbf3d";
+        ctx.beginPath();
+        ctx.arc(0, 0, r, -Math.PI / 2, -Math.PI / 2 + TAU * p);
+        ctx.stroke();
+        ctx.fillStyle = "rgba(255,255,255,0.8)";
+        for (let i = 0; i < 3; i++) {
+          ctx.globalAlpha = 0.4 - i * 0.08;
+          ctx.beginPath();
+          ctx.arc(Math.sin(game.beat * 2 + i) * 7, -24 - i * 9, 3 + i, 0, TAU);
+          ctx.fill();
+        }
+        if (urgent) {
+          ctx.globalAlpha = 1;
+          ctx.fillStyle = "#fff8f3";
+          ctx.font = "900 13px system-ui";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText("TIME LEFT", 0, -17);
+          ctx.font = "900 30px system-ui";
+          ctx.fillStyle = game.time <= 3 ? "#ff5050" : "#ffbf3d";
+          ctx.fillText(String(Math.max(0, Math.ceil(game.time))), 0, 14);
+        }
+        ctx.restore();
+      }
+
+      function drawEndCue() {
+        if (game.running || game.paused || !game.started || game.endReason !== "time") return;
+        ctx.save();
+        ctx.fillStyle = "rgba(0,0,0,0.5)";
+        ctx.fillRect(0, 0, game.width, game.height);
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.shadowColor = "rgba(0,0,0,0.85)";
+        ctx.shadowBlur = 18;
+        ctx.fillStyle = "#fff8f3";
+        ctx.font = "900 58px system-ui";
+        ctx.fillText("TIME UP", game.width / 2, game.height * 0.42);
+        ctx.font = "800 18px system-ui";
+        ctx.fillStyle = "#ffbf3d";
+        ctx.fillText("The incense burned out", game.width / 2, game.height * 0.42 + 48);
+        ctx.restore();
+      }
+
+      function render() {
+        const shakeX = game.shake ? rand(-game.shake, game.shake) : 0;
+        const shakeY = game.shake ? rand(-game.shake, game.shake) : 0;
+        ctx.save();
+        ctx.clearRect(0, 0, game.width, game.height);
+        ctx.translate(shakeX, shakeY);
+        drawStreet(ctx, game.width, game.height);
+
+        const all = [
+          ...game.rivals.map(item => ({ type: "rival", y: item.y, item })),
+          ...game.boys.map(item => ({ type: "boy", y: item.y, item })),
+          ...game.obstacles.map(item => ({ type: "obstacle", y: item.y, item }))
+        ].sort((a, b) => a.y - b.y);
+
+        for (const entry of all) {
+          if (entry.type === "rival") drawRival(entry.item);
+          if (entry.type === "boy") drawBoy(entry.item);
+          if (entry.type === "obstacle") drawObstacle(entry.item);
+        }
+
+        drawFollowers();
+        drawBeam();
+        drawIdol(ctx, game.player.x, game.player.y, 1);
+
+        for (const heart of game.hearts) drawHeart(ctx, heart.x, heart.y, heart.size, heart.rot, heart.color, clamp(heart.life, 0, 1));
+        for (const particle of game.particles) {
+          ctx.save();
+          ctx.globalAlpha = clamp(particle.life / particle.max, 0, 1);
+          ctx.fillStyle = particle.color;
+          ctx.beginPath();
+          ctx.arc(particle.x, particle.y, particle.size, 0, TAU);
+          ctx.fill();
+          ctx.restore();
+        }
+
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        for (const float of game.floats) {
+          ctx.save();
+          ctx.globalAlpha = clamp(float.life, 0, 1);
+          ctx.font = "900 18px system-ui";
+          ctx.fillStyle = float.color;
+          ctx.shadowColor = "rgba(0,0,0,0.55)";
+          ctx.shadowBlur = 8;
+          ctx.fillText(float.text, float.x, float.y);
+          ctx.restore();
+        }
+
+        drawIncense();
+        drawEndCue();
+
+        if (game.paused) {
+          ctx.fillStyle = "rgba(0,0,0,0.48)";
+          ctx.fillRect(0, 0, game.width, game.height);
+          ctx.fillStyle = "#f8fbff";
+          ctx.font = "900 42px system-ui";
+          ctx.fillText("PAUSE", game.width / 2, game.height / 2);
+        }
+
+        if (game.flash > 0) {
+          ctx.globalAlpha = game.flash;
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, game.width, game.height);
+        }
+
+        ctx.restore();
+      }
+
+      function drawPoster() {
+        const rect = posterCanvas.parentElement.getBoundingClientRect();
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        posterCanvas.width = Math.max(1, Math.floor(rect.width * dpr));
+        posterCanvas.height = Math.max(1, Math.floor(rect.height * dpr));
+        posterCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        const w = rect.width;
+        const h = rect.height;
+        const old = { width: game.width, height: game.height, worldX: game.worldX };
+        game.width = w;
+        game.height = h;
+        game.worldX = 180;
+        drawStreet(posterCtx, w, h, 180);
+        posterCtx.save();
+        posterCtx.translate(w * 0.72, h * 0.62);
+        posterCtx.scale(0.76, 0.76);
+        drawIdol(posterCtx, 0, 0, 1.15, true);
+        posterCtx.restore();
+        posterCtx.save();
+        posterCtx.globalAlpha = 0.65;
+        drawPerson(posterCtx, w * 0.46, h * 0.62, { color: "#c7ff4f", sign: "♡", sway: 1 });
+        drawPerson(posterCtx, w * 0.56, h * 0.68, { color: "#33e4ca", sign: "★", sway: 2, scale: 0.86 });
+        posterCtx.restore();
+        for (let i = 0; i < 20; i++) {
+          posterCtx.fillStyle = i % 2 ? "#33e4ca" : "#ff4d8d";
+          posterCtx.globalAlpha = 0.32;
+          posterCtx.beginPath();
+          posterCtx.arc(rand(0, w), rand(0, h), rand(1.5, 3.5), 0, TAU);
+          posterCtx.fill();
+        }
+        game.width = old.width;
+        game.height = old.height;
+        game.worldX = old.worldX;
+        posterCtx.globalAlpha = 1;
+      }
+
+      let last = performance.now();
+      function loop(now) {
+        const dt = Math.min((now - last) / 1000, 0.033);
+        last = now;
+        update(dt);
+        render();
+        requestAnimationFrame(loop);
+      }
+
+      function togglePause() {
+        if (!game.running) return;
+        game.paused = !game.paused;
+        game.pointer.down = false;
+      }
+
+      function setMuted(next) {
+        game.muted = next;
+        ui.waveA.style.display = next ? "none" : "";
+        ui.waveB.style.display = next ? "none" : "";
+      }
+
+      window.addEventListener("resize", resize);
+      canvas.addEventListener("pointerdown", pointerDown);
+      canvas.addEventListener("pointermove", event => {
+        setPointer(event);
+      });
+      canvas.addEventListener("pointerup", pointerUp);
+      canvas.addEventListener("pointercancel", pointerUp);
+      canvas.addEventListener("pointerleave", pointerUp);
+      ui.startBtn.addEventListener("click", resetGame);
+      ui.pauseBtn.addEventListener("click", togglePause);
+      ui.muteBtn.addEventListener("click", () => setMuted(!game.muted));
+      ui.resetBtn.addEventListener("click", () => {
+        game.best = 0;
+        game.lastScore = 0;
+        localStorage.removeItem(storageKey);
+        syncUi();
+      });
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden && game.running) {
+          game.paused = true;
+          game.pointer.down = false;
+        }
+      });
+
+      resize();
+      syncUi();
+      requestAnimationFrame(loop);
+    })();
+  </script>
+</body>
+</html>
