@@ -34,3 +34,26 @@ https://shemyu.github.io/single-page-games/games/crystal-vanguard/
 ## POC notes
 
 This is intentionally self-contained: one HTML file with embedded CSS, JavaScript, canvas rendering, and audio. The goal is to validate the tactical loop before extracting assets or introducing a framework.
+
+## Future ideas
+
+- Add a core building phase where players spend materials each round to build defensive walls and barricades.
+- Let walls shape enemy pathfinding, forcing monsters to reroute around player-built defenses instead of always walking directly toward the crystal.
+- Make construction materials a strategic resource alongside recruits and rerolls, so each round asks whether to invest in stronger units, better positioning, or terrain control.
+- Add clear build rules that prevent fully blocking all paths while still rewarding clever chokepoints, delay lanes, and emergency repairs.
+
+## Known issues from playtest
+
+### P1
+
+- Mobile core flow requires too much vertical scrolling. The battlefield, shop, roster, and start button are stacked far apart, so buying a unit, selecting it from the roster, and deploying it on the battlefield requires repeated scrolling.
+
+### P2
+
+- The mobile intro modal is slightly wider than a 390px viewport. It does not create horizontal scrolling, but the right edge is visually clipped.
+- The crystal's blocked deployment area is not obvious enough. Players can tap a nearby grid cell and receive "crystal position cannot be deployed" even when the intended target feels like an adjacent valid tile.
+
+### P3
+
+- Shop reroll feedback is too subtle. Pressing `R` spends gold and changes the shop, but the toast can still show the previous round message, so players may not immediately know the reroll succeeded.
+- On mobile, the first playable viewport hides the start button below the shop and roster. The action is still reachable by scrolling, but the next step is easy to miss.
