@@ -1,157 +1,140 @@
 # Tiny Arcade
 
 <p align="center">
-  <img src="./assets/tiny-arcade-open-source-banner.svg" alt="Tiny Arcade — open-source single-page games" width="100%">
+  <img src="./assets/tiny-arcade-open-source-banner.svg" alt="Tiny Arcade — free browser games, built in the open" width="100%">
 </p>
 
-> An instant-play browser game hub, created and curated by Shem.
+<p align="center">
+  <strong>Small games deserve real care — and a door anyone can open.</strong><br>
+  Free browser games with no install, no account, and no paywall between you and play.
+</p>
 
-**Tiny Arcade** is a searchable collection of small, self-contained browser games. Every title gets its own subpath, opens without an install or account, and can be hosted as static files on GitHub Pages.
+<p align="center">
+  <a href="https://shemyu.github.io/single-page-games/"><strong>▶ Play the arcade</strong></a>
+  ·
+  <a href="https://github.com/ShemYu/single-page-games/issues/new?template=game-wish.yml"><strong>💭 Wish for a game</strong></a>
+  ·
+  <a href="./CONTRIBUTING.md"><strong>🛠 Contribute</strong></a>
+  ·
+  <a href="./README.zh-TW.md"><strong>繁體中文</strong></a>
+</p>
 
-- **Game hub:** `https://shemyu.github.io/single-page-games/`
-- **Repository:** `https://github.com/ShemYu/single-page-games`
-- **Featured game:** `https://shemyu.github.io/single-page-games/games/mochi-sky/`
+---
 
-## What changed
+## Why Tiny Arcade exists
 
-The homepage is organized as a game hub rather than a personal landing page:
+I love games, and I still think there is something special about clicking a link and immediately entering a small world.
 
-- catalog-first layout
-- full-text game search
-- genre chips and control filters
-- newest, recently updated, and A–Z sorting
-- shareable URL state such as `?q=pixel&genre=platformer`
-- bilingual English / Traditional Chinese interface
-- one catalog file as the source of truth
-- accessible empty states, keyboard shortcut, and mobile layout
+Trying a game today often starts with a store, an install, an account, or a spending loop. There is nothing wrong with ambitious commercial games, but I want to keep another kind of experience alive too: **one link, one idea, and play first**.
 
-## Games
+Tiny Arcade is where I build those experiences. The games are intentionally small, but they are not disposable. I care about controls, game feel, art, sound, mobile support, and the tiny details that make a prototype feel like a real game.
 
-| Game | Status | Genre | Controls | Path |
-| --- | --- | --- | --- | --- |
-| **Mochi Sky / 麻糬星野** | POC | Platformer, Action | Keyboard, Touch | `games/mochi-sky/` |
-| **Crystal Vanguard / 琉璃城：八方守晶** | POC | Strategy, Arcade | Keyboard, Mouse, Touch | `games/crystal-vanguard/` |
+This repository is also an open invitation. Play something, point out what feels wrong, suggest the game you wish existed, or help build the next cabinet. A bug fix, a translation, a sound effect, a better animation, a wild mechanic, or a complete game can all move the arcade forward.
 
-## Repository structure
+## Play something
 
-```text
-single-page-games/
-├── index.html                         # Game hub shell
-├── 404.html                           # GitHub Pages fallback
-├── assets/
-│   ├── styles/
-│   │   └── hub.css                    # Hub visual system
-│   ├── scripts/
-│   │   ├── catalog.js                 # Game metadata source of truth
-│   │   └── hub.js                     # Search, filters, sorting, i18n
-│   ├── previews/
-│   │   ├── crystal-vanguard.png
-│   │   └── mochi-sky.png
-│   ├── tiny-arcade-open-source-banner.svg
-│   ├── shem-tiny-arcade-banner.svg
-│   └── shem-tiny-arcade-banner.png
-├── games/
-│   ├── crystal-vanguard/
-│   │   ├── index.html                 # Playable game
-│   │   └── README.md
-│   └── mochi-sky/
-│       ├── index.html                 # Playable game
-│       └── README.md
-└── .nojekyll
-```
+<table>
+  <tr>
+    <td width="33%" valign="top">
+      <a href="https://shemyu.github.io/single-page-games/games/mochi-sky/">
+        <img src="./assets/previews/mochi-sky.png" alt="Mochi Sky gameplay preview" width="100%">
+      </a>
+      <h3>Mochi Sky / 麻糬星野</h3>
+      <p>A pastel action platformer about jumping, inhaling bubble enemies, and chasing a rainbow gate.</p>
+      <p><a href="https://shemyu.github.io/single-page-games/games/mochi-sky/"><strong>Play</strong></a> · <a href="./games/mochi-sky/">Source</a></p>
+    </td>
+    <td width="33%" valign="top">
+      <a href="https://shemyu.github.io/single-page-games/games/crystal-vanguard/">
+        <img src="./assets/previews/crystal-vanguard.png" alt="Crystal Vanguard gameplay preview" width="100%">
+      </a>
+      <h3>Crystal Vanguard / 琉璃城：八方守晶</h3>
+      <p>A compact tactics and tower-defense game. Recruit, merge, deploy, and protect the crystal from every direction.</p>
+      <p><a href="https://shemyu.github.io/single-page-games/games/crystal-vanguard/"><strong>Play</strong></a> · <a href="./games/crystal-vanguard/">Source</a></p>
+    </td>
+    <td width="33%" valign="top">
+      <a href="https://shemyu.github.io/single-page-games/games/wink-pop-seoul/">
+        <img src="./assets/previews/wink-pop-seoul.png" alt="K-Idol Eye Runway gameplay preview" width="100%">
+      </a>
+      <h3>K-Idol Eye Runway / 韓系偶像電眼伸展台</h3>
+      <p>A playful side-scrolling charm game. Aim your gaze, race your rivals, and win the crowd before time runs out.</p>
+      <p><a href="https://shemyu.github.io/single-page-games/games/wink-pop-seoul/"><strong>Play</strong></a> · <a href="./games/wink-pop-seoul/">Source</a></p>
+    </td>
+  </tr>
+</table>
 
-The hub has no framework, package manager, bundler, backend, or runtime dependency.
+All current games are playable prototypes. They may still be rough around the edges—which is exactly why feedback is useful.
 
-## Add a game
+## The promise
 
-### 1. Add the playable page
+- **Free to play.** The arcade should be easy to enjoy, not another checkout screen.
+- **One click away.** No install, account, backend, or build step is required to play.
+- **Small, not careless.** A short game can still have personality, polish, and a satisfying loop.
+- **Built in the open.** Ideas, experiments, mistakes, and improvements stay visible.
+- **Welcoming by design.** Players, artists, developers, writers, translators, and curious beginners all have something useful to add.
+
+## Help shape the arcade
+
+### Playtest it
+
+Found a bug, confusing control, awkward difficulty spike, mobile issue, or detail that simply feels off? [Open an issue](https://github.com/ShemYu/single-page-games/issues/new). Screenshots, recordings, and honest reactions are extremely helpful.
+
+### Make a game wish
+
+Have a small game you would love to play, but cannot find anywhere? [Create a Game Wish card](https://github.com/ShemYu/single-page-games/issues/new?template=game-wish.yml).
+
+The idea does not need a full design document. A one-sentence fantasy, a strange mechanic, or “this game, but with…” is enough to begin a useful conversation. A wish is an invitation to explore—not a delivery promise.
+
+### Contribute
+
+You do not need to build an entire game. Useful contributions include:
+
+- fixing a bug or improving accessibility;
+- polishing controls, animation, UI, audio, or performance;
+- adding Traditional Chinese or English copy;
+- improving game art and asset tooling;
+- proposing a mechanic, level, enemy, or balance change;
+- contributing a new self-contained browser game.
+
+Start with the [contribution guide](./CONTRIBUTING.md), or comment on an existing issue before opening a larger pull request.
+
+## Built to stay simple
+
+Each game lives under its own path and can run as static files:
 
 ```text
 games/<game-slug>/index.html
 ```
 
-Keep the game self-contained inside its folder whenever practical.
-
-### 2. Add a 16:9 preview
+The arcade hub reads its cards, search data, filters, and localized copy from one catalog:
 
 ```text
-assets/previews/<game-slug>.png
+assets/scripts/catalog.js
 ```
 
-### 3. Register it in the catalog
+There is no framework, package manager, bundler, backend, login system, or runtime dependency. GitHub Pages is enough to host the whole arcade.
 
-Edit `assets/scripts/catalog.js` and append one object:
-
-```js
-{
-  id: "new-game",
-  title: {
-    en: "New Game",
-    zh: "新遊戲"
-  },
-  description: {
-    en: "A one-sentence description.",
-    zh: "一句話遊戲說明。"
-  },
-  path: "./games/new-game/",
-  source: "https://github.com/ShemYu/single-page-games/tree/main/games/new-game",
-  preview: "./assets/previews/new-game.png",
-  previewAlt: {
-    en: "Gameplay preview of New Game",
-    zh: "新遊戲的遊玩畫面"
-  },
-  genres: ["puzzle"],
-  tags: ["pixel-art", "single-player"],
-  controls: ["keyboard", "touch"],
-  status: "poc",
-  featured: false,
-  playTime: "5 min",
-  added: "2026-06-23",
-  updated: "2026-06-23"
-}
-```
-
-The homepage will automatically generate the game card, search index, genre counts, filters, sorting, result count, and localized labels. No card markup needs to be copied.
-
-Supported catalog values can be extended in the translation maps inside `assets/scripts/hub.js`.
-
-## Local preview
-
-Use any static file server:
+### Local preview
 
 ```bash
 python3 -m http.server 8080
 ```
 
-Then open:
+Then open `http://localhost:8080/`.
 
-```text
-http://localhost:8080/
-```
+## Principles I try to protect
 
-Direct `file://` preview is not recommended because browser security rules can vary for linked assets and storage.
-
-## Mochi Sky controls
-
-| Input | Action |
-| --- | --- |
-| `←` `→` / `A` `D` | Move |
-| `Space` / `W` | Jump |
-| Hold `X` | Inhale |
-| `C` | Shoot star |
-| `R` | Restart |
-| `P` | Pause |
-
-Touch controls are included for mobile browsers.
-
-## Hub principles
-
-1. **Games first** — visitors should reach something playable within one click.
-2. **One source of truth** — game metadata belongs in the catalog, not duplicated card markup.
-3. **Static by default** — GitHub Pages should be enough to run the whole hub.
-4. **Subpath safe** — internal links stay relative so project Pages works correctly.
-5. **Small but product-shaped** — prototypes can be tiny without feeling disposable.
+1. **Play first.** A visitor should reach something playable within one click.
+2. **Make the small thing feel complete.** Scope can be tiny; care should not be.
+3. **Prefer understandable technology.** The repository should remain approachable to someone opening it for the first time.
+4. **Treat feedback as part of development.** A player noticing something is not noise—it is design information.
+5. **Leave room for surprise.** Not every game needs to follow a trend, genre formula, or monetization loop.
 
 ## License and attribution
 
-Each game may declare its own licensing or attribution notes inside its folder. Hub design and repository structure are maintained by [ShemYu](https://github.com/ShemYu).
+Individual games and generated assets may carry their own attribution or reuse notes inside their folders. Please review those notes before reusing code or artwork outside this repository.
+
+---
+
+<p align="center">
+  Built with curiosity, stubborn iteration, and a genuine love of games by <a href="https://github.com/ShemYu">Shem Yu</a> — with room for anyone who wants to help the arcade grow.
+</p>
