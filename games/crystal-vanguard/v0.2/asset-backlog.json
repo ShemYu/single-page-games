@@ -2,19 +2,22 @@
   "version": "0.2.0",
   "updated": "2026-06-26",
   "status_values": [
-    "integrated",
-    "placeholder_in_game",
-    "backlog"
+    "integrated_qa",
+    "placeholder_ready",
+    "runtime_temp",
+    "backlog",
+    "done"
   ],
-  "items": [
+  "runtime_assets": [
     {
-      "id": "ART-UNIT-001",
-      "category": "unit",
-      "content_id": "blade",
-      "name": "Blade Rank 1",
-      "status": "integrated",
-      "priority": "P0",
+      "ticket_id": "CV-U-BLADE-R1",
       "runtime_asset_id": "unit.blade.rank1",
+      "category": "job",
+      "content_id": "blade",
+      "name": "劍士 Rank 1",
+      "status": "integrated_qa",
+      "priority": "P0",
+      "runtime_now": "existing directional sprite",
       "deliverables": [
         "idle",
         "walk",
@@ -23,139 +26,349 @@
         "hurt",
         "death"
       ],
-      "spec": {
-        "cell_px": [96, 96],
-        "direction_rows": ["S", "SE", "E", "NE", "N", "NW", "W", "SW"],
-        "anchor_px": [48, 82]
-      }
+      "technical_spec": "96x96 cells; 8 rows; 6/8/8/8/4/8 frames; root (48,82); RGBA PNG",
+      "issue": "Integrated; verify foot-anchor drift, action-to-action scale, crop, and silhouette readability.",
+      "next_action": "Run shared validator and Phaser action proof; close only after visual QA.",
+      "acceptance": "No empty/cropped frames, direction mismatch, visible foot slide, or action-scale jump."
     },
     {
-      "id": "ART-MON-001",
+      "ticket_id": "CV-U-BOW-R1",
+      "runtime_asset_id": "unit.bow.rank1",
+      "category": "job",
+      "content_id": "bow",
+      "name": "弓手 Rank 1",
+      "status": "placeholder_ready",
+      "priority": "P0",
+      "runtime_now": "green diamond fallback",
+      "deliverables": [
+        "idle",
+        "walk",
+        "attack",
+        "cast",
+        "hurt",
+        "death"
+      ],
+      "technical_spec": "Humanoid 96x96 contract; bow handedness fixed; arrow/projectile separate.",
+      "issue": "No source art.",
+      "next_action": "Produce identity turnaround, then one action strip per direction.",
+      "acceptance": "All eight directions readable; release frame aligns with projectile timing."
+    },
+    {
+      "ticket_id": "CV-U-ARCANE-R1",
+      "runtime_asset_id": "unit.arcane.rank1",
+      "category": "job",
+      "content_id": "arcane",
+      "name": "法師 Rank 1",
+      "status": "placeholder_ready",
+      "priority": "P0",
+      "runtime_now": "violet hex fallback",
+      "deliverables": [
+        "idle",
+        "walk",
+        "attack",
+        "cast",
+        "hurt",
+        "death"
+      ],
+      "technical_spec": "Humanoid 96x96 contract; staff/book geometry locked; spell VFX separate.",
+      "issue": "No source art.",
+      "next_action": "Produce identity turnaround and cast strips; deliver separate spell VFX.",
+      "acceptance": "Cast release reads clearly without baked effects obscuring the body."
+    },
+    {
+      "ticket_id": "CV-U-LIGHT-R1",
+      "runtime_asset_id": "unit.light.rank1",
+      "category": "job",
+      "content_id": "light",
+      "name": "服事 Rank 1",
+      "status": "placeholder_ready",
+      "priority": "P1",
+      "runtime_now": "gold circle fallback",
+      "deliverables": [
+        "idle",
+        "walk",
+        "attack",
+        "cast",
+        "hurt",
+        "death"
+      ],
+      "technical_spec": "Humanoid 96x96 contract; support silhouette; healing VFX separate.",
+      "issue": "No source art.",
+      "next_action": "Lock support silhouette and directional cast pose.",
+      "acceptance": "Cast pose reads in all directions; no baked target marker."
+    },
+    {
+      "ticket_id": "CV-U-SHADE-R1",
+      "runtime_asset_id": "unit.shade.rank1",
+      "category": "job",
+      "content_id": "shade",
+      "name": "盜賊 Rank 1",
+      "status": "placeholder_ready",
+      "priority": "P1",
+      "runtime_now": "purple diamond fallback",
+      "deliverables": [
+        "idle",
+        "walk",
+        "attack",
+        "cast",
+        "hurt",
+        "death"
+      ],
+      "technical_spec": "Humanoid 96x96 contract; fixed dual-weapon handedness; compact anticipation/recovery.",
+      "issue": "No source art.",
+      "next_action": "Approve identity turnaround with dual-weapon handedness locked.",
+      "acceptance": "Attack never swaps hands or crops outside the cell."
+    },
+    {
+      "ticket_id": "CV-U-GEL-R1",
+      "runtime_asset_id": "unit.gel.rank1",
+      "category": "job",
+      "content_id": "gel",
+      "name": "嫩芽軟泥 Rank 1",
+      "status": "placeholder_ready",
+      "priority": "P1",
+      "runtime_now": "green blob fallback",
+      "deliverables": [
+        "idle",
+        "walk",
+        "attack",
+        "cast",
+        "hurt",
+        "death"
+      ],
+      "technical_spec": "96x96 creature contract; 8 rows; root (48,82); preserve body volume.",
+      "issue": "No source art; creature envelope needs approval.",
+      "next_action": "Approve identity turnaround and squash/stretch envelope before animation.",
+      "acceptance": "Face/crown identity and body volume remain stable across directions."
+    },
+    {
+      "ticket_id": "CV-M-SPROUT",
+      "runtime_asset_id": "monster.sprout",
       "category": "monster",
       "content_id": "sprout",
       "name": "苔芽獸",
-      "status": "placeholder_in_game",
+      "status": "placeholder_ready",
       "priority": "P0",
-      "runtime_asset_id": "monster.sprout",
-      "required_actions": ["idle", "walk", "attack", "hurt", "death"]
+      "runtime_now": "green blob fallback",
+      "deliverables": [
+        "idle",
+        "walk",
+        "attack",
+        "hurt",
+        "death"
+      ],
+      "technical_spec": "Recommended 96x96; 8 rows; 4/6/6/3/6 frames; root (48,82).",
+      "issue": "No source art.",
+      "next_action": "Produce first monster set as pipeline reference.",
+      "acceptance": "Spawn, walk, hit, and death remain distinct at 50% display scale."
     },
     {
-      "id": "ART-MON-002",
+      "ticket_id": "CV-M-MOTH",
+      "runtime_asset_id": "monster.moth",
       "category": "monster",
       "content_id": "moth",
       "name": "針翅蟲",
-      "status": "placeholder_in_game",
+      "status": "placeholder_ready",
       "priority": "P1",
-      "runtime_asset_id": "monster.moth",
-      "required_actions": ["idle", "walk", "attack", "hurt", "death"]
+      "runtime_now": "paired-wing fallback",
+      "deliverables": [
+        "idle",
+        "fly",
+        "attack",
+        "hurt",
+        "death"
+      ],
+      "technical_spec": "96x96; 8 rows; stable body center; no floor shadow.",
+      "issue": "No source art.",
+      "next_action": "Animate clean flight loop and directional attack.",
+      "acceptance": "Flight reads over dark/green tiles and never implies ground contact."
     },
     {
-      "id": "ART-MON-003",
+      "ticket_id": "CV-M-FUNGUS",
+      "runtime_asset_id": "monster.fungus",
+      "category": "monster",
+      "content_id": "fungus",
+      "name": "紫帽菇",
+      "status": "placeholder_ready",
+      "priority": "P1",
+      "runtime_now": "mushroom fallback",
+      "deliverables": [
+        "idle",
+        "walk",
+        "attack",
+        "hurt",
+        "death"
+      ],
+      "technical_spec": "96x96; 8 rows; cap silhouette and stem scale locked.",
+      "issue": "No source art.",
+      "next_action": "Lock cap/stem proportions before action animation.",
+      "acceptance": "Cap size and body scale do not drift between directions."
+    },
+    {
+      "ticket_id": "CV-M-GOLEM",
+      "runtime_asset_id": "monster.golem",
       "category": "monster",
       "content_id": "golem",
       "name": "頁岩巨像",
-      "status": "placeholder_in_game",
+      "status": "placeholder_ready",
       "priority": "P1",
-      "runtime_asset_id": "monster.golem",
-      "required_actions": ["idle", "walk", "attack", "hurt", "death"]
+      "runtime_now": "stone-square fallback",
+      "deliverables": [
+        "idle",
+        "walk",
+        "attack",
+        "hurt",
+        "death"
+      ],
+      "technical_spec": "96x96 or approved 128x128 large envelope; 8 rows; heavy contact timing.",
+      "issue": "No source art; envelope size requires approval.",
+      "next_action": "Approve 96 or 128 cell envelope and weapon crop budget.",
+      "acceptance": "Body/weapon never crops and scale supports the boss hierarchy."
     },
     {
-      "id": "ART-BLD-001",
+      "ticket_id": "CV-M-SHAMAN",
+      "runtime_asset_id": "monster.shaman",
+      "category": "monster",
+      "content_id": "shaman",
+      "name": "燭角巫獸",
+      "status": "placeholder_ready",
+      "priority": "P2",
+      "runtime_now": "red hex fallback",
+      "deliverables": [
+        "idle",
+        "walk",
+        "attack",
+        "hurt",
+        "death"
+      ],
+      "technical_spec": "96x96; 8 rows; projectile and impact separate; declared release origin.",
+      "issue": "No source art.",
+      "next_action": "Define projectile origin and directional release frame.",
+      "acceptance": "Release frame is unambiguous and aligns with the runtime projectile."
+    },
+    {
+      "ticket_id": "CV-M-MONARCH",
+      "runtime_asset_id": "monster.monarch",
+      "category": "boss",
+      "content_id": "monarch",
+      "name": "荒角王獸",
+      "status": "placeholder_ready",
+      "priority": "P1",
+      "runtime_now": "horned crown fallback",
+      "deliverables": [
+        "idle",
+        "walk",
+        "attack",
+        "hurt",
+        "death",
+        "portrait"
+      ],
+      "technical_spec": "Prefer 128x128 if needed; 8 rows; explicit anchor/display scale.",
+      "issue": "No source art; boss envelope and crop budget need approval.",
+      "next_action": "Approve boss turnaround, cell size, crop budget, and HUD portrait.",
+      "acceptance": "Visually dominant without hiding nearby actors or health UI."
+    },
+    {
+      "ticket_id": "CV-B-BARRICADE",
+      "runtime_asset_id": "building.barricade",
       "category": "building",
       "content_id": "barricade",
-      "name": "木製路障",
-      "status": "placeholder_in_game",
+      "name": "木石路障",
+      "status": "placeholder_ready",
       "priority": "P0",
-      "runtime_asset_id": "building.barricade",
-      "required_actions": ["idle", "damaged"]
+      "runtime_now": "drawn wall fallback",
+      "deliverables": [
+        "intact",
+        "damaged",
+        "destroyed"
+      ],
+      "technical_spec": "Recommended 128x128 RGBA; bottom-center root; transparent; one-tile footprint.",
+      "issue": "No source art; runtime supports static-sprite replacement.",
+      "next_action": "Deliver intact PNG first, then damaged/debris states.",
+      "acceptance": "Occupied tile and damage state remain obvious at mobile size."
     },
     {
-      "id": "ART-BLD-002",
+      "ticket_id": "CV-B-ARROWTOWER",
+      "runtime_asset_id": "building.arrow-tower",
       "category": "building",
-      "content_id": "bolt-tower",
+      "content_id": "arrow-tower",
       "name": "弩箭塔",
-      "status": "placeholder_in_game",
+      "status": "placeholder_ready",
       "priority": "P0",
-      "runtime_asset_id": "building.bolt-tower",
-      "required_actions": ["idle", "attack"]
-    },
+      "runtime_now": "drawn tower fallback",
+      "deliverables": [
+        "base",
+        "aim_or_fire_optional"
+      ],
+      "technical_spec": "Recommended 128x128 RGBA; bottom-center root; projectile separate.",
+      "issue": "No source art; muzzle origin not documented.",
+      "next_action": "Deliver static base and document muzzle origin.",
+      "acceptance": "Fits one tile and projectile origin aligns with the art."
+    }
+  ],
+  "supporting_assets": [
     {
-      "id": "ART-CORE-001",
-      "category": "core",
-      "content_id": "crystal",
-      "name": "中央水晶",
-      "status": "placeholder_in_game",
-      "priority": "P1",
-      "runtime_asset_id": "core.crystal",
-      "required_actions": ["idle", "damaged"]
-    },
-    {
-      "id": "ART-VFX-001",
+      "ticket_id": "CV-VFX-PROJECTILES",
       "category": "vfx",
-      "content_id": "blade-cleave",
-      "name": "Blade cleave",
-      "status": "placeholder_in_game",
+      "status": "runtime_temp",
       "priority": "P1",
-      "required_actions": ["slash", "impact"]
+      "runtime_now": "runtime circles",
+      "deliverables": [
+        "arrow",
+        "arcane_orb",
+        "holy_bolt",
+        "shaman_bolt"
+      ],
+      "issue": "Current circles prove timing only.",
+      "next_action": "Replace after actor release frames are locked."
     },
     {
-      "id": "ART-VFX-002",
+      "ticket_id": "CV-VFX-SKILLS",
       "category": "vfx",
-      "content_id": "bolt",
-      "name": "Bolt projectile and impact",
-      "status": "placeholder_in_game",
+      "status": "runtime_temp",
       "priority": "P1",
-      "runtime_asset_id": "projectile.bolt",
-      "required_actions": ["projectile", "impact"]
+      "runtime_now": "runtime expanding rings",
+      "deliverables": [
+        "cleave",
+        "nova",
+        "heal",
+        "execute",
+        "slow_field"
+      ],
+      "issue": "Current rings do not express class identity.",
+      "next_action": "Match authored effect radius to gameplay radius within half a cell."
     },
     {
-      "id": "ART-UI-001",
+      "ticket_id": "CV-UI-ICONS",
       "category": "ui",
-      "content_id": "placement-tools",
-      "name": "Placement tool icons",
-      "status": "placeholder_in_game",
+      "status": "backlog",
       "priority": "P2",
-      "required_actions": ["blade", "barricade", "bolt-tower"]
+      "runtime_now": "text glyphs",
+      "deliverables": [
+        "job",
+        "building",
+        "trait",
+        "gold",
+        "crystal",
+        "phase_icons"
+      ],
+      "issue": "Glyph appearance varies by platform font.",
+      "next_action": "Create 32px and 64px icon family after silhouettes are approved."
     },
     {
-      "id": "ART-UNIT-002",
-      "category": "unit",
-      "content_id": "archer",
-      "name": "Archer Rank 1",
-      "status": "backlog",
-      "priority": "P2"
-    },
-    {
-      "id": "ART-UNIT-003",
-      "category": "unit",
-      "content_id": "mage",
-      "name": "Mage Rank 1",
-      "status": "backlog",
-      "priority": "P2"
-    },
-    {
-      "id": "ART-UNIT-004",
-      "category": "unit",
-      "content_id": "acolyte",
-      "name": "Acolyte Rank 1",
-      "status": "backlog",
-      "priority": "P2"
-    },
-    {
-      "id": "ART-UNIT-005",
-      "category": "unit",
-      "content_id": "thief",
-      "name": "Thief Rank 1",
-      "status": "backlog",
-      "priority": "P3"
-    },
-    {
-      "id": "ART-UNIT-006",
-      "category": "unit",
-      "content_id": "gel",
-      "name": "Gel companion",
-      "status": "backlog",
-      "priority": "P3"
+      "ticket_id": "CV-ENV-BOARD",
+      "category": "environment",
+      "status": "runtime_temp",
+      "priority": "P2",
+      "runtime_now": "procedural board",
+      "deliverables": [
+        "tiles",
+        "eight_gates",
+        "crystal_platform",
+        "blocker_decal"
+      ],
+      "issue": "Functional but generic environment.",
+      "next_action": "Define reusable tile palette and seamless set."
     }
   ]
 }

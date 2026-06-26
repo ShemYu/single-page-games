@@ -18,7 +18,7 @@ permissions:
   contents: read
 
 jobs:
-  content-contracts:
+  backbone-contracts:
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -31,6 +31,10 @@ jobs:
         with:
           node-version: 22
 
-      - name: Run Crystal Vanguard v0.2 tests
+      - name: Run v0.2 tests
         working-directory: games/crystal-vanguard/v0.2
         run: npm test
+
+      - name: Check every JavaScript module syntax
+        working-directory: games/crystal-vanguard/v0.2
+        run: find src tests -type f -name '*.js' -print0 | xargs -0 -n1 node --check

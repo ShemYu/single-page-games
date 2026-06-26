@@ -2,22 +2,47 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-import { ASSETS } from '../src/content.js';
+import { createContentRegistry } from '../src/content.js';
 
-test('every runtime visual has an art-backlog record', async () => {
-  const raw = await readFile(new URL('../asset-backlog.json', import.meta.url), 'utf8');
-  const backlog = JSON.parse(raw);
-  const byRuntimeId = new Map(
-    backlog.items
-      .filter((item) => item.runtime_asset_id)
-      .map((item) => [item.runtime_asset_id, item])
-  );
+const backlogUrl = new URL('../asset-backlog.json', import.meta.url);
+const csvUrl = new URL('../art-assets.csv', import.meta.url);
 
-  for (const asset of ASSETS) {
-    const item = byRuntimeId.get(asset.id);
-    assert.ok(item, `Missing backlog record for ${asset.id}`);
+async function loadBacklog() {
+  return JSON.parse(await readFile(backlogUrl, 'utf8'));
+}
 
-    const expectedStatus = asset.status === 'ready' ? 'integrated' : 'placeholder_in_game';
-    assert.equal(item.status, expectedStatus, `Status drift for ${asset.id}`);
+test('every runtime visual has exactly one art backlog record', async () => {
+  const registry = createContentRegistry();
+  const backlog = await loadBacklog();
+  const runtimeIds = registry.list('assets').map(asset => asset.id).sort();
+  const trackedIds = backlog.runtime_assets.map(item => item.runtime_asset_id).sort();
+
+  assert.deepEqual(trackedIds, runtimeIds);
+  assert.equal(new Set(trackedIds).size, trackedIds.length);
+});
+
+test('art records contain actionable production fields and valid statuses', async () => {
+  const backlog = await loadBacklog();
+  const allowed = new Set(backlog.status_values);
+
+  for (const item of [...backlog.runtime_assets, ...backlog.supporting_assets]) {
+    assert.ok(item.ticket_id);
+    assert.ok(allowed.has(item.status), `${item.ticket_id}: invalid status ${item.status}`);
+    assert.match(item.priority, /^P[0-2]$/);
+    assert.ok(item.runtime_now);
+    assert.ok(Array.isArray(item.deliverables) && item.deliverables.length > 0);
+    assert.ok(item.issue);
+    assert.ok(item.next_action);
+  }
+});
+
+test('CSV handoff includes all ticket and runtime IDs', async () => {
+  const backlog = await loadBacklog();
+  const csv = await readFile(csvUrl, 'utf8');
+
+  assert.match(csv.split(/\r?\n/, 1)[0], /ticket_id,runtime_asset_id/);
+  for (const item of backlog.runtime_assets) {
+    assert.ok(csv.includes(item.ticket_id));
+    assert.ok(csv.includes(item.runtime_asset_id));
   }
 });

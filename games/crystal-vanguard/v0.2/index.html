@@ -3,121 +3,131 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0b1116" />
-  <title>Crystal Vanguard v0.2｜Phaser Backbone</title>
+  <meta name="theme-color" content="#0a1215" />
+  <meta name="description" content="Crystal Vanguard v0.2 — data-driven Phaser tactics and tower-defense backbone." />
+  <title>琉璃城：八方守晶 v0.2｜Phaser Backbone</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
   <div class="scanlines" aria-hidden="true"></div>
-
-  <div id="app-shell">
+  <div id="app">
     <header class="topbar panel">
       <div class="brand">
-        <div class="brand-crystal" aria-hidden="true"></div>
+        <span class="brand-crystal" aria-hidden="true"></span>
         <div>
-          <p class="eyebrow">CRYSTAL VANGUARD · v0.2</p>
+          <p class="eyebrow">CRYSTAL VANGUARD <span>v0.2</span></p>
           <h1>琉璃城：八方守晶</h1>
-          <p class="subtitle">以內容註冊表驅動的 Phaser 戰棋守塔骨架</p>
+          <p class="subtitle">Phaser · data-driven combat backbone · static-host friendly</p>
         </div>
       </div>
 
-      <div class="stat-row" aria-live="polite">
-        <div class="stat"><span>回合</span><strong id="round-value">1</strong></div>
-        <div class="stat gold"><span>金幣</span><strong id="gold-value">12</strong></div>
-        <div class="stat"><span>敵人</span><strong id="enemy-value">0</strong></div>
+      <div class="status-grid" aria-label="遊戲狀態">
+        <div class="status-chip"><span>階段</span><strong id="phaseValue">部署階段</strong></div>
+        <div class="status-chip wide"><span>波次</span><strong id="waveValue">1</strong></div>
+        <div class="status-chip gold"><span>金幣</span><strong id="goldValue">0</strong></div>
+        <div class="status-chip"><span>敵人</span><strong id="enemyValue">0</strong></div>
+        <div class="status-chip"><span>防線</span><strong id="defenseValue">0</strong></div>
       </div>
 
-      <div class="crystal-status">
-        <div class="meter-label">
-          <span>水晶耐久</span>
-          <strong id="crystal-text">700 / 700</strong>
-        </div>
-        <div class="meter" role="progressbar" aria-label="水晶耐久">
-          <i id="crystal-fill"></i>
-        </div>
+      <div class="top-actions">
+        <button id="debugBtn" class="small-button" type="button" title="切換偵錯圖層（D）">Debug</button>
+        <button id="resetBtn" class="small-button danger" type="button">重置</button>
+      </div>
+
+      <div class="crystal-meter" aria-label="水晶生命值">
+        <div class="meter-copy"><span>核心水晶</span><b id="crystalValue">1000 / 1000</b></div>
+        <div class="meter-track"><i id="crystalFill"></i></div>
       </div>
     </header>
 
     <main class="layout">
-      <section class="arena-panel panel">
-        <div id="game" aria-label="Crystal Vanguard 遊戲畫面"></div>
-        <div class="phase-badge" id="phase-badge">部署階段</div>
-        <div class="wave-progress" id="wave-progress">尚未開始</div>
-        <div class="toast" id="toast" role="status" aria-live="polite"></div>
+      <section class="stage-panel panel" aria-label="戰場">
+        <div id="game" class="game-root" role="application" aria-label="Crystal Vanguard game canvas"></div>
+        <div id="toast" class="toast" role="status" aria-live="polite"></div>
+        <div id="defeatPanel" class="defeat-panel" hidden>
+          <div class="defeat-card panel">
+            <p class="eyebrow">CORE SIGNAL LOST</p>
+            <h2>水晶失守</h2>
+            <p id="defeatText"></p>
+            <button id="restartBtn" class="primary-button" type="button">重新部署</button>
+          </div>
+        </div>
+        <div class="control-strip">
+          <span><kbd>1–6</kbd> 選職業</span>
+          <span><kbd>Space</kbd> 開始波次</span>
+          <span><kbd>Esc</kbd> 取消工具</span>
+          <span><kbd>D</kbd> Debug</span>
+          <span><kbd>右鍵</kbd> 拆除</span>
+        </div>
       </section>
 
       <aside class="sidebar">
-        <section class="panel card">
-          <div class="card-title">
-            <div>
-              <p class="eyebrow">DEPLOY / BUILD</p>
-              <h2>部署工具</h2>
-            </div>
-            <button class="ghost-button" id="cancel-tool" type="button">取消</button>
+        <section class="side-card panel">
+          <div class="section-heading">
+            <div><p class="eyebrow">DEPLOYMENT</p><h2>職業單位</h2></div>
+            <small>上限 8</small>
           </div>
-
-          <div class="tool-grid">
-            <button class="tool-button" data-tool="unit:blade" type="button">
-              <span class="tool-icon">⚔</span>
-              <span><strong>劍士</strong><small>4G · 真實角色素材</small></span>
-            </button>
-            <button class="tool-button" data-tool="building:barricade" type="button">
-              <span class="tool-icon">▥</span>
-              <span><strong>木製路障</strong><small>3G · 臨時素材</small></span>
-            </button>
-            <button class="tool-button" data-tool="building:bolt-tower" type="button">
-              <span class="tool-icon">⌁</span>
-              <span><strong>弩箭塔</strong><small>5G · 臨時素材</small></span>
-            </button>
-          </div>
-
-          <div class="selection" id="selection-detail">
-            選擇工具後，點擊有效格子部署。右鍵點擊既有單位可回收一半成本。
-          </div>
+          <div id="jobCatalog" class="catalog-grid"></div>
         </section>
 
-        <section class="panel card">
-          <div class="card-title">
-            <div>
-              <p class="eyebrow">COMMAND</p>
-              <h2>戰鬥控制</h2>
-            </div>
+        <section class="side-card panel">
+          <div class="section-heading">
+            <div><p class="eyebrow">FORTIFICATION</p><h2>防守建築</h2></div>
+            <small>不可封死入口</small>
           </div>
-          <button class="primary-button" id="start-wave" type="button">
-            <strong>開始下一波</strong>
-            <span>部署完成後進入自動戰鬥</span>
+          <div id="buildingCatalog" class="catalog-grid"></div>
+        </section>
+
+        <section class="side-card panel selection-card">
+          <div class="section-heading">
+            <div><p class="eyebrow">INSPECTOR</p><h2 id="selectionTitle">尚未選擇</h2></div>
+            <button id="cancelSelectionBtn" class="icon-button" type="button" title="取消選擇">×</button>
+          </div>
+          <div id="selectionBody" class="selection-body"></div>
+        </section>
+
+        <section class="side-card panel">
+          <div class="section-heading">
+            <div><p class="eyebrow">NEXT WAVE</p><h2>來襲預報</h2></div>
+          </div>
+          <ul id="forecastList" class="forecast-list"></ul>
+          <button id="startWaveBtn" class="primary-button" type="button">
+            <strong id="startWaveLabel">開始第 1 波</strong>
+            <small>Space</small>
           </button>
-          <button class="danger-button" id="reset-game" type="button">重新開始 v0.2</button>
         </section>
 
-        <section class="panel card">
-          <div class="card-title">
-            <div>
-              <p class="eyebrow">STATUS</p>
-              <h2>戰場狀態</h2>
-            </div>
-          </div>
-          <dl class="status-list">
-            <div><dt>角色</dt><dd id="unit-count">0</dd></div>
-            <div><dt>建築</dt><dd id="building-count">0</dd></div>
-            <div><dt>波次進度</dt><dd id="spawn-count">0 / 0</dd></div>
-          </dl>
-          <div class="log" id="event-log" aria-live="polite"></div>
-        </section>
-
-        <section class="panel card compact">
-          <p class="note">
-            v0.2 刻意只完成一條可玩的垂直切片：資料驅動內容、部署、兩種防禦建築、
-            近戰／投射物戰鬥、技能觸發與波次。商店、合成、存檔與導航網格留到後續版本。
-          </p>
-          <a class="doc-link" href="./docs/ASSET_BACKLOG.md">查看素材需求清單</a>
+        <section class="asset-note panel">
+          <strong>素材狀態</strong>
+          <p id="assetStatus">等待 runtime 檢查…</p>
+          <a href="./docs/ASSET_BACKLOG.md">查看美術需求與進度表</a>
         </section>
       </aside>
     </main>
   </div>
 
-  <noscript>此版本需要 JavaScript 才能執行。</noscript>
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js"></script>
-  <script type="module" src="./src/main.js"></script>
+  <script type="module">
+    const gameRoot = document.querySelector('#game');
+    const showBootError = message => {
+      const panel = document.createElement('div');
+      panel.className = 'boot-error';
+      const title = document.createElement('strong');
+      title.textContent = 'Crystal Vanguard 無法啟動';
+      const copy = document.createElement('p');
+      copy.textContent = message;
+      panel.append(title, copy);
+      gameRoot.replaceChildren(panel);
+    };
+
+    if (!window.Phaser) {
+      showBootError('Phaser 3.90.0 未載入，請檢查 CDN 或網路連線。');
+    } else {
+      import('./src/main.js').catch(error => {
+        console.error(error);
+        showBootError(error instanceof Error ? error.message : String(error));
+      });
+    }
+  </script>
 </body>
 </html>

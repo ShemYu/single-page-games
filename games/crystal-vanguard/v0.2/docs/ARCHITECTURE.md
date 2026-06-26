@@ -1,147 +1,209 @@
-# Crystal Vanguard v0.2 architecture
+# Crystal Vanguard v0.2 Architecture
 
-## Design target
+## 1. Design goal
 
-The v0.2 backbone must make common content additions cheap without turning a small browser game into a framework project.
+The v0.2 backbone should make the next content addition boring—in the good way. A new class or monster should normally be one data entry plus artwork, not a new branch of scene logic.
 
-The chosen boundary is:
+The architecture protects five boundaries:
 
-- **plain data** for professions, skills, monsters, buildings, waves, placement tools, and visual contracts;
-- **small runtime classes** for actors, assets, combat, placement, and waves;
-- **one Phaser battle scene** and one boot scene;
-- **one application event bus** between Phaser and the DOM HUD.
+1. **Content is data.** Stats, costs, asset references, waves, and most skill behavior are registered definitions.
+2. **Rules are pure where practical.** Grid, pathfinding, damage math, references, and scheduling can run without Phaser.
+3. **Phaser owns presentation, not game truth.** Actor models hold combat state; `ActorView` mirrors it.
+4. **One director coordinates phases.** Scenes do not spend gold, award waves, or remove entities directly.
+5. **Missing art never blocks gameplay.** The runtime selects a deterministic fallback and records the gap for art production.
 
-No ECS, service container, command hierarchy, or plugin system is introduced. Those would add ceremony before the game has enough content to justify them.
-
-## Module map
-
-| Module | Responsibility | Must not own |
-| --- | --- | --- |
-| `src/content.js` | IDs, stats, references, sprite contracts, validation | Phaser objects or mutable battle state |
-| `src/core.js` | event bus, session state, application context | combat rules |
-| `src/runtime.js` | sprite loading, placeholder generation, actors, actor factory | wave composition or UI |
-| `src/systems.js` | placement, targeting, combat resolution, skills, projectiles, waves | DOM rendering |
-| `src/scenes.js` | lifecycle and orchestration | content balance tables |
-| `src/ui.js` | DOM events and HUD rendering | direct Phaser object access |
-| `src/main.js` | bootstrapping | gameplay decisions |
-
-## Runtime flow
+## 2. Dependency direction
 
 ```text
-DOM command
-  → EventBus
-    → BattleScene
-      → PlacementSystem / WaveDirector
-        → ActorFactory
-          → CombatSystem
-            → GameSession
-              → EventBus
-                → HUD render
+config.js
+   ↓
+core.js ← content.js
+   ↓          ↓
+asset-system.js
+   ↓
+actors.js
+   ↓
+systems.js
+   ↓
+director.js
+   ↓
+scenes.js ← ui.js
+   ↓
+main.js
 ```
 
-The scene orchestrates. It does not contain profession-specific branches.
+Dependencies flow downward. Content definitions never import Phaser. The director may call systems, but systems do not import the director.
 
-## Content contracts
+## 3. Runtime responsibilities
 
-### Profession
+| Layer | Owns | Must not own |
+| --- | --- | --- |
+| Content registry | IDs, stats, costs, relationships, wave groups | Phaser objects, DOM nodes, mutable battle state |
+| Core | Grid occupancy, pathfinding, events, math, runtime state shape | Sprites, animations, input |
+| Asset system | Loading, sheet registration, dimensions checks, runtime fallback decision | Combat stats or class behavior |
+| Actor model/view | Per-entity state and its visual mirror | Economy, wave completion, catalog rules |
+| Systems | Placement, targets, skills, damage, movement, spawning schedule | Page layout or scene lifecycle |
+| Game director | Phase transitions, economy, entity sets, rewards, loss condition | Rendering details |
+| Scene | Board, pointer/keyboard input, debug overlay, transient VFX | Authoritative state mutation outside the director |
+| HUD | DOM rendering and user commands sent to the director | Combat calculations |
 
-A profession references:
+## 4. Stable content IDs
 
-- one visual asset;
-- zero or more skills;
-- base stats;
-- one attack profile;
-- placement cost.
+IDs are runtime contracts and should not be translated or renamed casually.
 
-Adding another ordinary melee profession is data-only.
+```text
+job:       blade
+skill:     blade.cleave
+asset:     unit.blade.rank1
+monster:   sprout
+building:  barricade
+wave:      wave-1
+```
 
-### Skill
+Localized names are display values; IDs are references. `createContentRegistry()` validates all cross-links during boot and fails early on duplicate or missing IDs.
 
-A skill has a trigger and effect:
+## 5. Add a job
+
+Most jobs require three changes.
+
+### A. Register or declare the asset
+
+In `src/content.js`, add an asset entry. Art can be absent at first:
 
 ```js
 {
-  id: 'blade.cleave',
-  trigger: 'afterAttack',
-  every: 3,
-  effect: {
-    type: 'areaDamage',
-    radius: 58,
-    multiplier: 0.55
+  id: 'unit.alchemist.rank1',
+  type: 'placeholder',
+  status: 'missing',
+  fallback: {
+    shape: 'hex',
+    glyph: '⚗',
+    primary: 0x536a5f,
+    secondary: 0xbde6c7
   }
 }
 ```
 
-Adding another skill using an existing effect type is data-only. A genuinely new effect type needs one resolver in `CombatSystem.skillResolvers`.
+When the full sheets arrive, change it to `directional-sprite`, add the action files, cell, rows, anchor, and scale. No actor or scene code should change.
 
-### Attack style
+### B. Reuse or add a skill
 
-v0.2 ships with:
+A skill definition contains cooldown, animation hint, and effect data. Existing effect types are:
 
-- `melee`
-- `projectile`
-- `none`
+- `area-damage`
+- `chain-damage`
+- `heal`
+- `execute`
+- `slow-area`
 
-A new attack style requires one `attackResolvers` entry. The actor and scene APIs do not change.
+A new skill using one of those types is data-only. A truly new mechanic requires one handler registered in `SkillSystem`; keep the handler generic enough for another class to reuse.
 
-### Monster
+### C. Add the job definition
 
-A monster references a visual asset and attack profile. Wave definitions reference monster IDs; they never construct actors directly.
+Add costs, progression labels, asset/skill IDs, attack style, and stats to `JOB_DEFINITIONS`. Boot validation checks the references.
 
-### Defensive building
+## 6. Add or replace artwork
 
-A building uses the same combat actor contract as a profession, with `moveSpeed: 0`. A barricade uses `none`; a tower uses `projectile`.
+The runtime supports three asset modes:
 
-## Asset failure behavior
+| Type | Use | Runtime behavior |
+| --- | --- | --- |
+| `directional-sprite` | Animated units and monsters | Loads one sheet per action and registers eight direction animations |
+| `static-sprite` | Buildings, props, or intentionally static actors | Loads one PNG with a declared size and root anchor |
+| `placeholder` | Missing or intentionally deferred art | Draws a stable geometric stand-in and glyph |
 
-Only assets marked `ready` are requested over the network. Every asset definition also has a placeholder contract.
+A failed load or wrong declared dimensions falls back instead of crashing the game. The console prints a runtime asset table at boot.
 
-When an expected sprite sheet fails to load:
+Humanoid production art must follow the existing contract at:
 
-1. BootScene records the loader error.
-2. AssetRuntime omits broken animations.
-3. The actor automatically uses the generated fallback texture.
-4. The HUD reports the fallback through the event bus.
+```text
+../../assets/units/SPRITE_GENERATION_SPEC.md
+```
 
-Missing art therefore degrades visuals, not gameplay.
+The current canonical root is `(48, 82)` in a `96×96` cell. Do not bake floor shadows, projectiles, slash trails, or UI into character sheets.
 
-## Extension recipes
+## 7. Add a monster
 
-### Add a profession
+1. Add its asset declaration.
+2. Add a `MONSTER_DEFINITIONS` entry.
+3. Add it to one or more wave groups.
 
-1. Add its visual entry to `ASSETS`.
-2. Add reusable effects to `SKILLS`.
-3. Add the profession to `PROFESSIONS`.
-4. Add a placement entry to `TOOLS`.
-5. Add or update the art backlog.
-6. Run `npm test`.
+Supported trait flags in v0.2:
 
-### Add a monster
+- `flying`: moves directly to the crystal and ignores ground blockers;
+- `siege`: scores buildings more aggressively when selecting a combat target;
+- `boss`: uses the boss visual envelope and can drive future boss UI.
 
-1. Add its visual entry.
-2. Add its monster definition.
-3. Reference its ID from a wave group.
-4. Run `npm test`.
+A new trait with behavioral consequences belongs in `CombatSystem`, not in the scene.
 
-### Add a building
+## 8. Add a defensive building
 
-1. Add its visual entry.
-2. Add its building definition.
-3. Reference it from a placement tool.
-4. Run `npm test`.
+Buildings use the same actor model as units but have zero movement. A definition can declare:
 
-## Deferred seams
+- `blocksPath` for path shaping;
+- HP, armor, radius, aggro range, and threat;
+- optional attack stats and `attackStyle`;
+- an optional reusable skill.
 
-### Navigation
+`PlacementSystem` tests a candidate blocking cell against all eight entrances before spending gold. Do not duplicate route-safety rules inside a UI button or scene pointer handler.
 
-v0.2 uses attraction/interception: nearby units and barricades pull monsters away from the crystal. It intentionally does **not** claim that walls alter a navigation mesh.
+## 9. Add another combat mode
 
-The next navigation iteration can replace monster movement behind a `PathPlanner` interface without changing content definitions, actor creation, waves, or HUD state.
+`RealtimeCombatMode` is intentionally a thin adapter around `WaveSystem` and `CombatSystem`. A mode object must implement:
 
-### Progression and merging
+```js
+start({ waveDefinition, waveNumber })
+update(deltaSeconds, now, spawn)
+get waveExhausted()
+stop()
+```
 
-Ranks should be expressed as profession variants or rank modifiers layered over the same profession definition. The current actor factory is the narrow construction point where that modifier belongs.
+A future turn-based or auto-chess mode can replace scheduling and update cadence while keeping content, actors, economy, asset handling, placement, and HUD contracts.
 
-### Saving
+Call `GameDirector.registerCombatMode(id, mode)` and switch it through `setCombatMode(id)` during build phase; use `GAME_CONFIG.defaultCombatMode` for the boot default. Avoid adding `if (mode === ...)` throughout combat code; mode-specific behavior belongs behind the adapter.
 
-Only `GameSession` owns run-level state exposed to the HUD. A serializer can be added around session snapshots after the progression model stabilizes.
+## 10. State and events
+
+The director owns one mutable runtime state object. UI and scene VFX observe it through `EventBus` snapshots and semantic events such as:
+
+```text
+state:changed
+selection:changed
+wave:started
+wave:completed
+combat:attack
+combat:skill
+combat:damage
+combat:heal
+crystal:damaged
+entity:defeated
+```
+
+Events are notifications, not a second source of truth. A listener must not secretly spend gold or alter HP.
+
+## 11. Testing policy
+
+Every new rule that can be separated from Phaser should receive a Node test. High-value cases include:
+
+- duplicate and missing content references;
+- path preservation after a building candidate;
+- new skill effect math;
+- wave scheduling order;
+- armor, slow, and rank scaling;
+- combat-mode resolution rules.
+
+Browser playtesting is still required for animation timing, input, responsive layout, and feel. Node tests are a guardrail, not a substitute for playing the game.
+
+## 12. Explicit non-goals for the backbone
+
+Do not introduce these until a concrete feature needs them:
+
+- a full ECS framework;
+- dependency-injection containers;
+- an event-sourced store;
+- a build pipeline solely to reorganize imports;
+- a generic behavior tree editor;
+- network synchronization;
+- save migrations before save data exists.
+
+The current seams are small on purpose. Expand the narrow interface that is under pressure; do not pre-build an engine for hypothetical games.

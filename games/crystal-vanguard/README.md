@@ -4,7 +4,7 @@ A pixel tactics tower-defense experiment inside **Shem's Tiny Arcade**.
 
 ## Play
 
-Current single-page POC:
+Current single-page Canvas POC:
 
 ```text
 https://shemyu.github.io/tiny-arcade/games/crystal-vanguard/
@@ -16,40 +16,42 @@ Phaser v0.2 backbone after the branch is merged:
 https://shemyu.github.io/tiny-arcade/games/crystal-vanguard/v0.2/
 ```
 
-The v0.2 implementation is intentionally isolated under [`v0.2/`](./v0.2/) so the original POC remains available for comparison and rollback.
+The v0.2 implementation is isolated under [`v0.2/`](./v0.2/) so the original POC remains available for comparison and rollback.
 
-## What is implemented in the original POC
+## Original POC
 
-- eight-direction enemy wave forecasting
-- recruitable tactics roster
-- pre-battle deployment on a grid
-- auto-battler movement and combat
-- unit merging from first through fourth rank
-- crystal health and round progression
-- shop rerolls
-- rally command during battle
-- keyboard, mouse, and touch controls
-- lightweight procedural audio
+The current root route implements:
 
-## What v0.2 establishes
+- eight-direction enemy wave forecasting;
+- recruitable tactics roster and pre-battle deployment;
+- auto-battler movement and combat;
+- unit merging from first through fourth rank;
+- crystal health, round progression, shop rerolls, and rally command;
+- keyboard, mouse, touch controls, and lightweight procedural audio.
 
-- Phaser 3.90 boot and battle scenes
-- a validated content registry for professions, skills, attack styles, monsters, waves, buildings, tools, and visual contracts
-- the existing Blade Rank 1 six-action, eight-direction sprite set
-- automatic procedural fallbacks when production art is absent or fails to load
-- planning and battle phases, placement, refunds, melee and projectile combat, skills, waves, rewards, defeat, and reset
-- two defensive buildings: a barricade and a bolt tower
-- an art-team backlog in both Markdown and JSON
-- Node tests for IDs, cross references, immutability, session state, wave scheduling, grid rules, and art-backlog parity
+## Phaser v0.2 backbone
 
-Run the v0.2 content tests with:
+v0.2 establishes a deliberately small, extensible game core rather than porting every POC feature at once:
+
+- Phaser 3.90 boot and battle scenes with a responsive static-host page shell;
+- immutable registries for assets, six jobs, six skills, six monsters, two buildings, and five reusable wave definitions;
+- the existing Blade Rank 1 idle / walk / attack / cast / hurt / death sheets;
+- deterministic fallbacks for every missing job, monster, building, and temporary VFX asset;
+- build/combat phases, economy, refunds, defender cap, wave rewards, crystal defeat, and reset;
+- reusable skill-effect handlers for area damage, chain damage, healing, execute, and area slow;
+- grid pathfinding around blocking structures and an eight-entrance route guard that rejects illegal walls;
+- flying and siege monster traits plus a registered combat-mode adapter seam;
+- art-team handoff in Markdown, JSON, and CSV;
+- dependency-free Node tests and a path-scoped GitHub Actions workflow.
+
+Run the contracts with:
 
 ```bash
 cd games/crystal-vanguard/v0.2
 npm test
 ```
 
-Architecture and deliberate non-goals are documented in [`v0.2/docs/ARCHITECTURE.md`](./v0.2/docs/ARCHITECTURE.md). Missing and integrated assets are tracked in [`v0.2/docs/ASSET_BACKLOG.md`](./v0.2/docs/ASSET_BACKLOG.md).
+Architecture and deliberate non-goals are documented in [`v0.2/docs/ARCHITECTURE.md`](./v0.2/docs/ARCHITECTURE.md). Missing, temporary, and integrated art is tracked in [`v0.2/docs/ASSET_BACKLOG.md`](./v0.2/docs/ASSET_BACKLOG.md), [`v0.2/asset-backlog.json`](./v0.2/asset-backlog.json), and [`v0.2/art-assets.csv`](./v0.2/art-assets.csv).
 
 ## Controls in the original POC
 
@@ -77,16 +79,13 @@ The reusable sprite contract and generation prompts are documented in [`assets/u
 python3 tools/game-assets/validate_game_assets.py games/crystal-vanguard/asset-manifest.json
 ```
 
-## POC notes
+## Next directions after v0.2 review
 
-The original game remains a self-contained Canvas POC. v0.2 extracts the next architecture into Phaser modules without replacing the original route until the new vertical slice has been reviewed.
-
-## Future ideas
-
-- Add a core building phase where players spend materials each round to build defensive walls and barricades.
-- Let walls shape enemy pathfinding, forcing monsters to reroute around player-built defenses instead of always walking directly toward the crystal.
-- Make construction materials a strategic resource alongside recruits and rerolls, so each round asks whether to invest in stronger units, better positioning, or terrain control.
-- Add clear build rules that prevent fully blocking all paths while still rewarding clever chokepoints, delay lanes, and emergency repairs.
+- Reintroduce roster/shop choices on top of the new registries.
+- Add rank merging and class advancement without coupling progression to Phaser scenes.
+- Add a second combat-mode implementation to prove the adapter boundary.
+- Replace P0 placeholder assets before broadening map and wave content.
+- Add authored sound, saved progression, and additional stages only after the vertical slice is accepted.
 
 ## Known issues from original POC playtest
 

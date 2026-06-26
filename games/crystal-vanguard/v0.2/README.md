@@ -1,68 +1,89 @@
-# Crystal Vanguard v0.2 — Phaser backbone
+# Crystal Vanguard v0.2 Backbone
 
-v0.2 is a deliberately small but complete vertical slice for the next Crystal Vanguard architecture.
+`v0.2/` is the first integrated Phaser version of Crystal Vanguard. It turns the original single-file gameplay proof and the isolated Phaser sprite proof into a small, data-driven runtime that can grow without rewriting the scene every time a class, skill, monster, building, or combat mode is added.
 
-It keeps the existing **Blade Rank 1** eight-direction sprite sheets, replaces missing monster/building/VFX art with deterministic Phaser-generated placeholders, and establishes extension seams for professions, skills, attack styles, monsters, waves, and defensive buildings.
+This version is deliberately a **vertical slice**, not a content-complete rewrite. It proves the extension seams and a playable loop while keeping the repository static-host friendly: no bundler, package install, backend, or build step is required.
 
-## Run locally
+## Play locally
 
-ES modules and game assets require an HTTP server. From the repository root:
+ES modules need an HTTP server; opening `index.html` through `file://` is not supported.
 
 ```bash
-python3 -m http.server 8000
+python3 -m http.server 8080
 ```
 
-Open:
+Then open:
 
 ```text
-http://localhost:8000/games/crystal-vanguard/v0.2/
+http://localhost:8080/games/crystal-vanguard/v0.2/
 ```
 
-## Validate the content layer
+After merge, the GitHub Pages path is:
+
+```text
+https://shemyu.github.io/tiny-arcade/games/crystal-vanguard/v0.2/
+```
+
+## What is implemented
+
+- Phaser 3.90 runtime with a fixed 960×640 tactical board and responsive page shell.
+- Build and battle phases, wave progression, crystal health, gold rewards, selling, and a defender cap.
+- Six data-defined job families from the original POC.
+- The existing Blade rank-1 idle, walk, attack, cast, hurt, and death sheets are used in battle.
+- Runtime fallback rendering for every missing job, monster, and building asset.
+- Data-defined skills with registered effect handlers: area damage, chain damage, healing, execute, and area slow.
+- Ground pathfinding around blocking buildings, plus placement validation that prevents sealing every route.
+- Flying monsters that ignore ground blockers.
+- Mobile-friendly layout, keyboard shortcuts, debug ranges and paths, and runtime asset diagnostics.
+- Pure-logic tests for registries, references, pathfinding, placement, wave scheduling, direction mapping, and combat resolution.
+
+## Controls
+
+| Input | Action |
+| --- | --- |
+| Mouse / touch | Select catalog cards, place units and buildings, inspect deployed actors |
+| Right click | Remove a deployment during build phase and refund 60% |
+| `1`–`6` | Select one of the six jobs |
+| `Space` | Start the next wave |
+| `Esc` | Cancel the current placement tool |
+| `D` | Toggle attack ranges and enemy paths |
+
+## Tests
+
+No dependency installation is needed. Node 20 or newer is recommended.
 
 ```bash
 cd games/crystal-vanguard/v0.2
 npm test
 ```
 
-The tests run without Phaser. They validate content IDs, duplicate detection, cross references, and immutability before the browser starts.
+The package is dependency-free. The command checks the browser entry syntax and runs the registry, pathfinding, placement, combat, art-backlog, and module-boundary tests.
 
-## Included vertical slice
+## Source map
 
-- Phaser 3.90 boot and battle scenes
-- existing Blade Rank 1 idle / walk / attack / cast / hurt / death sheets
-- planning and battle phases
-- grid placement and right-click refunds
-- one profession with two data-defined skills
-- melee and projectile attack resolvers
-- three placeholder monsters
-- barricade and bolt-tower defensive buildings
-- wave scheduling, round scaling, rewards, crystal defeat, and reset
-- DOM HUD isolated from scene implementation
-- Markdown and JSON asset backlog for the art pipeline
+| File | Responsibility |
+| --- | --- |
+| `src/content.js` | Assets, jobs, skills, monsters, buildings, waves, and cross-reference validation |
+| `src/core.js` | Registry, event bus, grid model, pathfinding, state, and pure combat math |
+| `src/asset-system.js` | Loading, dimensions checks, animation registration, static sprite support, and fallback decisions |
+| `src/actors.js` | Shared actor model, Phaser view, and entity factory |
+| `src/systems.js` | Placement, wave scheduling, targeting, skills, combat, and real-time combat-mode adapter |
+| `src/director.js` | Phase and economy orchestration; the only layer that coordinates all systems |
+| `src/scenes.js` | Phaser boot/battle scenes, board drawing, input, debug rendering, and lightweight VFX |
+| `src/ui.js` | DOM HUD and catalog rendering through director events |
 
-## Explicit non-goals for v0.2
+Read [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) before adding gameplay behavior. Art production is tracked in [`docs/ASSET_BACKLOG.md`](./docs/ASSET_BACKLOG.md), [`asset-backlog.json`](./asset-backlog.json), and [`art-assets.csv`](./art-assets.csv).
 
-These are intentionally deferred rather than half-built:
+## Intentional v0.2 limits
 
-- shop and roster UX
-- three-of-a-kind merging and class advancement
-- save data and meta progression
-- A* navigation and hard wall collision
-- status-effect stacking framework
-- general-purpose ECS or dependency-injection container
-- multiplayer and server authority
+The following are deferred so the backbone can be reviewed before content scope grows:
 
-The backbone is ready for those features, but none is required to prove the current contracts.
+- shop randomness and rerolls;
+- rank merging and class advancement;
+- save data and meta progression;
+- multiple stages and map editor tooling;
+- authored sound and music;
+- turn-based or auto-chess combat mode beyond the provided adapter seam;
+- full sprite sets for non-Blade jobs, monsters, buildings, VFX, and environment tiles.
 
-## Main extension point
-
-Game content lives in [`src/content.js`](./src/content.js). Most additions should be data-only:
-
-1. register the visual contract;
-2. register the skill, profession, monster, or building;
-3. reference it from a placement tool or wave;
-4. run `npm test`;
-5. add missing art to [`docs/ASSET_BACKLOG.md`](./docs/ASSET_BACKLOG.md).
-
-New attack or skill **effect types** require one resolver entry in `CombatSystem`; ordinary balance/content additions do not.
+These are feature work, not reasons to bypass the current registries and systems. The architecture document shows where each belongs.

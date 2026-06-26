@@ -1,68 +1,51 @@
-import { EventBus, GameSession, setAppContext } from './core.js';
+import { GAME_CONFIG } from './config.js';
 import { createContentRegistry } from './content.js';
-import { BootScene, BattleScene } from './scenes.js';
-import { HudController } from './ui.js';
+import { AssetSystem } from './asset-system.js';
+import { BattleScene, BootScene } from './scenes.js';
 
-function boot() {
-  if (!globalThis.Phaser) {
-    throw new Error('Phaser failed to load from the configured CDN.');
+function showBootError(message) {
+  const root = document.querySelector('#game');
+  if (root) {
+    root.innerHTML = `<div class="boot-error"><strong>Crystal Vanguard 無法啟動</strong><p>${message}</p></div>`;
   }
+}
 
-  const bus = new EventBus();
-  const content = createContentRegistry();
-  const session = new GameSession(bus);
+try {
+  if (!window.Phaser) throw new Error('Phaser 3.90.0 未載入，請檢查 CDN 或網路連線。');
 
-  const context = {
-    bus,
-    content,
-    session,
-    assetRuntime: null
-  };
-
-  setAppContext(context);
-  new HudController(context);
+  const contentRegistry = createContentRegistry();
+  const assetSystem = new AssetSystem(contentRegistry);
+  const bootScene = new BootScene(contentRegistry, assetSystem);
+  const battleScene = new BattleScene(contentRegistry, assetSystem);
 
   const game = new Phaser.Game({
     type: Phaser.AUTO,
     parent: 'game',
-    width: 960,
-    height: 640,
-    backgroundColor: '#13201f',
+    width: GAME_CONFIG.width,
+    height: GAME_CONFIG.height,
+    backgroundColor: GAME_CONFIG.backgroundColor,
     pixelArt: true,
-    roundPixels: true,
     render: {
       antialias: false,
       pixelArt: true,
       roundPixels: true
     },
-    physics: {
-      default: 'arcade',
-      arcade: {
-        gravity: { x: 0, y: 0 },
-        debug: false
-      }
-    },
     scale: {
       mode: Phaser.Scale.FIT,
-      autoCenter: Phaser.Scale.CENTER_BOTH
+      autoCenter: Phaser.Scale.CENTER_BOTH,
+      width: GAME_CONFIG.width,
+      height: GAME_CONFIG.height
     },
-    scene: [BootScene, BattleScene]
+    scene: [bootScene, battleScene]
   });
 
-  globalThis.__CRYSTAL_VANGUARD_V02__ = Object.freeze({
+  window.__CRYSTAL_VANGUARD_V02__ = {
     game,
-    content,
-    session,
-    version: '0.2.0'
-  });
-}
-
-try {
-  boot();
+    contentRegistry,
+    assetSystem,
+    version: GAME_CONFIG.version
+  };
 } catch (error) {
   console.error(error);
-  const target = document.querySelector('#game');
-  if (target) {
-    target.innerHTML = `<pre style="padding:16px;color:#ffd0cc;white-space:pre-wrap">${String(error?.stack ?? error)}</pre>`;
-  }
+  showBootError(error instanceof Error ? error.message : String(error));
 }

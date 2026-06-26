@@ -1,35 +1,28 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-test('runtime, systems, scenes, and UI modules import with the Phaser surface they require', async () => {
-  globalThis.Phaser = {
-    Math: {
-      DegToRad: (degrees) => degrees * Math.PI / 180,
-      Angle: {
-        Wrap: (angle) => angle
-      }
-    },
-    Physics: {
-      Arcade: {
-        Sprite: class {}
-      }
-    },
-    Scene: class {},
-    Scenes: {
-      Events: {
-        SHUTDOWN: 'shutdown'
-      }
-    }
-  };
+class PhaserContainerStub {}
+class PhaserSceneStub {}
 
-  const runtime = await import('../src/runtime.js');
-  const systems = await import('../src/systems.js');
-  const scenes = await import('../src/scenes.js');
-  const ui = await import('../src/ui.js');
+globalThis.Phaser = {
+  GameObjects: { Container: PhaserContainerStub },
+  Scene: PhaserSceneStub
+};
 
-  assert.equal(typeof runtime.AssetRuntime, 'function');
-  assert.equal(typeof runtime.ActorFactory, 'function');
-  assert.equal(typeof systems.CombatSystem, 'function');
-  assert.equal(typeof scenes.BattleScene, 'function');
-  assert.equal(typeof ui.HudController, 'function');
+test('browser-facing modules import with the Phaser boundary stubbed', async () => {
+  const modules = await Promise.all([
+    import('../src/config.js'),
+    import('../src/core.js'),
+    import('../src/content.js'),
+    import('../src/asset-system.js'),
+    import('../src/actors.js'),
+    import('../src/systems.js'),
+    import('../src/director.js'),
+    import('../src/ui.js'),
+    import('../src/scenes.js')
+  ]);
+
+  assert.equal(modules.length, 9);
+  assert.equal(typeof modules[4].ActorFactory, 'function');
+  assert.equal(typeof modules[8].BattleScene, 'function');
 });

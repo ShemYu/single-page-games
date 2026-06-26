@@ -1,49 +1,36 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import {
-  ASSETS,
-  CONTENT_DEFINITIONS,
-  ContentRegistry,
-  createContentRegistry
-} from '../src/content.js';
+import { createContentRegistry } from '../src/content.js';
 
-test('all v0.2 content definitions validate and cross references resolve', () => {
+test('Content registry boots with all v0.2 extension points connected', () => {
   const registry = createContentRegistry();
-
-  assert.equal(registry.get('profession', 'blade').visualAssetId, 'unit.blade.rank1');
-  assert.equal(registry.get('building', 'bolt-tower').attack.type, 'projectile');
-  assert.equal(registry.all('wave').length, 3);
+  assert.equal(registry.list('jobs').length, 6);
+  assert.equal(registry.list('skills').length, 6);
+  assert.equal(registry.list('monsters').length, 6);
+  assert.equal(registry.list('buildings').length, 2);
+  assert.equal(registry.list('waves').length, 5);
 });
 
-test('duplicate ids fail fast within a content collection', () => {
-  assert.throws(
-    () => new ContentRegistry({
-      asset: [ASSETS[0], { ...ASSETS[0] }]
-    }),
-    /Duplicate asset id/
-  );
-});
-
-test('missing references are rejected before Phaser boots', () => {
-  const brokenProfession = {
-    ...CONTENT_DEFINITIONS.profession[0],
-    visualAssetId: 'unit.missing'
-  };
-
-  assert.throws(
-    () => createContentRegistry({
-      ...CONTENT_DEFINITIONS,
-      profession: [brokenProfession]
-    }),
-    /references missing asset/
-  );
-});
-
-test('validated definitions are frozen to prevent runtime mutation', () => {
+test('Blade uses the integrated directional sheet and every other asset has a fallback', () => {
   const registry = createContentRegistry();
-  const blade = registry.get('profession', 'blade');
+  const blade = registry.get('assets', 'unit.blade.rank1');
+  assert.equal(blade.type, 'directional-sprite');
+  assert.deepEqual(Object.keys(blade.actions), ['idle', 'walk', 'attack', 'cast', 'hurt', 'death']);
+  assert.equal(blade.actions.idle.file, '../assets/units/blade-rank1-idle.png');
 
-  assert.equal(Object.isFrozen(blade), true);
-  assert.equal(Object.isFrozen(blade.stats), true);
+  const placeholderAssets = registry.list('assets').filter(asset => asset.type === 'placeholder');
+  assert.equal(placeholderAssets.length, 13);
+  assert.ok(placeholderAssets.every(asset => asset.fallback?.glyph));
+});
+
+test('All wave groups reference registered monsters', () => {
+  const registry = createContentRegistry();
+  for (const wave of registry.list('waves')) {
+    for (const group of wave.groups) {
+      assert.ok(registry.has('monsters', group.monsterId), `${wave.id} -> ${group.monsterId}`);
+      assert.ok(group.count > 0);
+      assert.ok(group.intervalMs > 0);
+    }
+  }
 });
